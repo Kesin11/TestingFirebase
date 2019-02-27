@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Kesin11/TestingFirebase#readme",
   "private": true,
   "dependencies": {
+    "firebase": "5.8.4",
     "ts-node": "8.0.2",
     "typescript": "3.3.3333"
   }

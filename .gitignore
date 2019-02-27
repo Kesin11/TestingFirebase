@@ -61,3 +61,4 @@ typings/
 .next
 
 .firebaserc
+firebase_config.json
