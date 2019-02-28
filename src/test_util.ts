@@ -6,3 +6,10 @@ export const generateRandomUserConfig = () => {
     password: Math.round(Math.random()*100000000).toString()
   }
 }
+
+export const dummyUsers = () => {
+  return [
+    {"email": "test1@example.com", "password": "testtest"},
+    {"email": "test2@example.com", "password": "testtest"},
+  ]
+}

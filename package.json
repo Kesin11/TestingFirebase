@@ -4,7 +4,9 @@
   "description": "Testing firebase project",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "auth:import": "firebase auth:import auth_export.json",
+    "auth:export": "firebase auth:export auth_export.json --format=json"
   },
   "repository": {
     "type": "git",

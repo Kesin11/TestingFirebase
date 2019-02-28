@@ -1,12 +1,10 @@
 import firebase from 'firebase'
 import config from '../firebase_config.json'
+import { dummyUsers } from '../src/test_util'
 
 // 元々存在しているユーザーがauthで認証でき、ログインに相当する自分のFirestoreの変更ができるかのテスト
 
-const userConfig = {
-  email: 'test@example.com',
-  password: 'testtest'
-}
+const userConfig = dummyUsers()[0]
 let user: firebase.User | null
 
 describe('既存のダミーユーザーが', () => {
