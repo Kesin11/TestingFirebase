@@ -6,7 +6,10 @@
   "scripts": {
     "test": "jest",
     "auth:import": "firebase auth:import auth_export.json",
-    "auth:export": "firebase auth:export auth_export.json --format=json"
+    "auth:export": "firebase auth:export auth_export.json --format=json",
+    "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
+    "firestore:delete_all": "firebase firestore:delete --all-collections"
+
   },
   "repository": {
     "type": "git",
