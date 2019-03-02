@@ -19,13 +19,13 @@ jobs:
                 command: npm run firebase:use_test -- --token $FIREBASE_TOKEN
             - run:
                 name: Firebase auth import
-                command: npm run auth:import -- --token $FIREBASE_TOKEN
+                command: npm run auth:import
             - run:
                 name: Deploy Firestore
-                command: npm run firestore:deploy -- --token $FIREBASE_TOKEN
+                command: npm run firestore:deploy
             - run:
                 name: Clean Firestore
-                command: npm run firestore:delete_all
+                command: npm run firestore:delete_all -- -y
             - run:
                 name: Insert dummy data to Firestore
                 command: npm run firestore:insert_dummy
