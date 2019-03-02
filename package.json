@@ -10,7 +10,6 @@
     "firestore:deploy": "firebase deploy --only firestore",
     "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
     "firestore:delete_all": "firebase firestore:delete --all-collections"
-
   },
   "repository": {
     "type": "git",
@@ -28,6 +27,7 @@
     "@types/uuid": "3.4.4",
     "firebase": "5.8.4",
     "firebase-admin": "7.0.0",
+    "firebase-tools": "6.4.0",
     "jest": "24.1.0",
     "ts-jest": "24.0.0",
     "ts-node": "8.0.2",
