@@ -15,6 +15,9 @@ jobs:
             - run: npm ci
             # TODO: create firebase_config.json and service_account.json here
             - run:
+                name: Select using Firebase project
+                command: npm run firebase:use_test -- --token $FIREBASE_TOKEN
+            - run:
                 name: Firebase auth import
                 command: npm run auth:import -- --token $FIREBASE_TOKEN
             - run:

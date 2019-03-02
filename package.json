@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "firebase:use_test": "firebase use test",
     "auth:import": "firebase auth:import auth_export.json",
     "auth:export": "firebase auth:export auth_export.json --format=json",
     "firestore:deploy": "firebase deploy --only firestore",
