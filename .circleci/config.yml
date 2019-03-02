@@ -12,7 +12,7 @@ jobs:
       - node/with-cache:
           cache-version: v1
           steps:
-            - run: npm install
+            - run: npm ci
             # TODO: create firebase_config.json and service_account.json here
             - run:
                 name: Firebase auth import
@@ -37,7 +37,7 @@ jobs:
       - node/with-cache:
           cache-version: v1
           steps:
-            - run: npm install
+            - run: npm ci
             - run:
                 name: Test
                 command: npm run test
