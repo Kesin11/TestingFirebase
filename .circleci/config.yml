@@ -1,0 +1,51 @@
+version: 2.1
+orbs:
+  node: circleci/node@0.0.8
+jobs:
+  firebase-setup:
+    executor:
+      name: node/node
+      tag: latest
+    working_directory: ~/project
+    steps:
+      - checkout
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm install
+            # TODO: create firebase_config.json and service_account.json here
+            - run:
+                name: Firebase auth import
+                command: npm run auth:import -- --token $FIREBASE_TOKEN
+            - run:
+                name: Deploy Firestore
+                command: npm run firestore:deploy -- --token $FIREBASE_TOKEN
+            - run:
+                name: Clean Firestore
+                command: npm run firestore:delete_all
+            - run:
+                name: Insert dummy data to Firestore
+                command: npm run firestore:insert_dummy
+  test:
+    executor:
+      name: node/node
+      tag: latest
+    working_directory: ~/project
+
+    steps:
+      - checkout
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm install
+            - run:
+                name: Test
+                command: npm run test
+workflows:
+  version: 2
+  firebase-test:
+    jobs:
+      - firebase-setup
+      - test:
+          requires:
+            - firebase-setup
