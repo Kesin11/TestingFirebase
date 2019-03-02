@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "testing-firebase-test",
+    "test": "testing-firebase-test",
+    "dev": "testing-firebase-9d0aa"
+  }
+}

@@ -60,6 +60,5 @@ typings/
 # next.js build output
 .next
 
-.firebaserc
 firebase_config.json
 service_account.json
