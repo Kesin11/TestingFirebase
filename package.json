@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:ci": "jest --ci --runInBand --reporters=default --reporters=jest-junit",
     "firebase:use_test": "firebase use test",
     "auth:import": "firebase auth:import auth_export.json",
     "auth:export": "firebase auth:export auth_export.json --format=json",
@@ -31,8 +32,9 @@
   "devDependencies": {
     "@types/jest": "24.0.9",
     "@types/uuid": "3.4.4",
-    "jest": "24.1.0",
     "firebase-tools": "6.4.0",
+    "jest": "24.1.0",
+    "jest-junit": "6.3.0",
     "ts-jest": "24.0.0",
     "ts-node": "8.0.2",
     "typescript": "3.3.3333"
