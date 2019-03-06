@@ -1,0 +1,75 @@
+version: 2.1
+orbs:
+  node: circleci/node@0.0.8
+  firebase:
+    commands:
+      decode_secrets:
+        steps:
+          # Get two secrets and rename. Then set base64 string to CircleCI env.
+          # FIEBASE_CONFIG=`base64 firebase_config_test.json`
+          # FIEBASE_SERVICE_ACCOUNT=`base64 service_account_test.json`
+          - run:
+              name: Decode firebase_config.json and service_account.json
+              command: |
+                echo $FIREBASE_CONFIG | base64 --decode > firebase_config.json;
+                echo $FIREBASE_SERVICE_ACCOUNT | base64 --decode > service_account.json
+
+jobs:
+  firebase-setup:
+    executor:
+      name: node/node
+      tag: latest
+    working_directory: ~/project
+    steps:
+      - checkout
+      - firebase/decode_secrets
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm ci
+            - run:
+                name: Select using Firebase project
+                command: npm run firebase:use_test -- --token $FIREBASE_TOKEN
+            - run:
+                name: Firebase auth clear exist users
+                command: npm run auth:clear
+            - run:
+                name: Firebase auth import users
+                command: npm run auth:import
+            - run:
+                name: Deploy Firestore
+                command: npm run firestore:deploy
+            - run:
+                name: Clean Firestore
+                command: npm run firestore:delete_all -- -y
+            - run:
+                name: Insert dummy data to Firestore
+                command: npm run firestore:insert_dummy
+  test:
+    executor:
+      name: node/node
+      tag: latest
+    working_directory: ~/project
+
+    steps:
+      - checkout
+      - firebase/decode_secrets
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm ci
+            - run:
+                name: Test
+                command: npm run test:ci
+                environment:
+                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+            - store_test_results:
+                path: ./junit
+workflows:
+  version: 2
+  firebase-test:
+    jobs:
+      - firebase-setup
+      - test:
+          requires:
+            - firebase-setup

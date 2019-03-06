@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:ci": "jest --ci --runInBand --reporters=default --reporters=jest-junit",
+    "firebase:use_test": "firebase use test",
+    "auth:clear": "ts-node scripts/clear_auth_users.ts",
     "auth:import": "firebase auth:import auth_export.json",
     "auth:export": "firebase auth:export auth_export.json --format=json",
     "firestore:deploy": "firebase deploy --only firestore",
     "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
     "firestore:delete_all": "firebase firestore:delete --all-collections"
-
   },
   "repository": {
     "type": "git",
@@ -24,14 +26,18 @@
   "homepage": "https://github.com/Kesin11/TestingFirebase#readme",
   "private": true,
   "dependencies": {
-    "@types/jest": "24.0.9",
-    "@types/uuid": "3.4.4",
     "firebase": "5.8.4",
     "firebase-admin": "7.0.0",
+    "uuid": "3.3.2"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.9",
+    "@types/uuid": "3.4.4",
+    "firebase-tools": "6.4.0",
     "jest": "24.1.0",
+    "jest-junit": "6.3.0",
     "ts-jest": "24.0.0",
     "ts-node": "8.0.2",
-    "typescript": "3.3.3333",
-    "uuid": "3.3.2"
+    "typescript": "3.3.3333"
   }
 }

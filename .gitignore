@@ -61,4 +61,6 @@ typings/
 .next
 
 firebase_config.json
+firebase_config_test.json
 service_account.json
+service_account_test.json
