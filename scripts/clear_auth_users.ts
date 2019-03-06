@@ -1,5 +1,9 @@
 import admin, { ServiceAccount } from 'firebase-admin'
-import serviceAccount from '../service_account_test.json'
+import serviceAccount from '../service_account.json'
+
+if (serviceAccount.project_id !== 'testing-firebase-test') {
+  throw new Error('Clear auth users allowed test project only! Replace to test project service_account.json')
+}
 
 const app = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount as ServiceAccount),
