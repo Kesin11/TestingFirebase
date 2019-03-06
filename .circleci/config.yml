@@ -31,7 +31,10 @@ jobs:
                 name: Select using Firebase project
                 command: npm run firebase:use_test -- --token $FIREBASE_TOKEN
             - run:
-                name: Firebase auth import
+                name: Firebase auth clear exist users
+                command: npm run auth:clear
+            - run:
+                name: Firebase auth import users
                 command: npm run auth:import
             - run:
                 name: Deploy Firestore
