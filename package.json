@@ -12,7 +12,8 @@
     "auth:export": "firebase auth:export auth_export.json --format=json",
     "firestore:deploy": "firebase deploy --only firestore",
     "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
-    "firestore:delete_all": "firebase firestore:delete --all-collections"
+    "firestore:delete_all": "firebase firestore:delete --all-collections",
+    "firestore:install_emulator": "firebase setup:emulators:firestore"
   },
   "repository": {
     "type": "git",
