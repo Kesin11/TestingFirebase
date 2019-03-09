@@ -78,8 +78,8 @@ jobs:
           steps:
             - run: npm ci
             - run:
-                name: setup:emulator
-                command: npm run firestore:emulator
+                name: Install emulator
+                command: npm run firestore:install_emulator
 workflows:
   version: 2
   firebase-test:
