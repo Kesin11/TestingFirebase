@@ -67,7 +67,7 @@ jobs:
                 path: ./junit
   test-firestore-rules:
     docker:
-      - circleci/openjdk:stretch-node
+      - image: circleci/openjdk:stretch-node
     working_directory: ~/repo
 
     steps:
