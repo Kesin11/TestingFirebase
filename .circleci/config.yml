@@ -88,3 +88,6 @@ workflows:
       - test:
           requires:
             - firebase-setup
+      - test-firestore-rules:
+          requires:
+            - firebase-setup
