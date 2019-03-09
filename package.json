@@ -13,7 +13,8 @@
     "firestore:deploy": "firebase deploy --only firestore",
     "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
     "firestore:delete_all": "firebase firestore:delete --all-collections",
-    "firestore:install_emulator": "firebase setup:emulators:firestore"
+    "firestore:install_emulator": "firebase setup:emulators:firestore",
+    "firestore:setup_emulator": "firebase serve --only firestore"
   },
   "repository": {
     "type": "git",
