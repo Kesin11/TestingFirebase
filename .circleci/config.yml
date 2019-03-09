@@ -65,6 +65,21 @@ jobs:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
                 path: ./junit
+  test-firestore-rules:
+    docker:
+      - circleci/openjdk:stretch-node
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - firebase/decode_secrets
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm ci
+            - run:
+                name: setup:emulator
+                command: npm run firestore:emulator
 workflows:
   version: 2
   firebase-test:
