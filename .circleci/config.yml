@@ -80,6 +80,9 @@ jobs:
             - run:
                 name: Install emulator
                 command: npm run firestore:install_emulator
+            - run:
+                name: Setup emulator
+                command: npm run firestore:setup_emulator
 workflows:
   version: 2
   firebase-test:
