@@ -28,6 +28,7 @@
   "homepage": "https://github.com/Kesin11/TestingFirebase#readme",
   "private": true,
   "dependencies": {
+    "@firebase/testing": "0.7.4",
     "firebase": "5.8.4",
     "firebase-admin": "7.0.0",
     "uuid": "3.3.2"
