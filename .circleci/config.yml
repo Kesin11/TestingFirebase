@@ -45,7 +45,7 @@ jobs:
             - run:
                 name: Insert dummy data to Firestore
                 command: npm run firestore:insert_dummy
-  test:
+  test-firestore-real:
     executor:
       name: node/node
       tag: latest
@@ -60,15 +60,15 @@ jobs:
             - run: npm ci
             - run:
                 name: Test
-                command: npm run test:ci
+                command: npm run test:ci -- __tests__/real
                 environment:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
                 path: ./junit
-  test-firestore-rules:
+  test-firestore-emulator:
     docker:
       - image: circleci/openjdk:stretch-node
-    working_directory: ~/repo
+    working_directory: ~/project
 
     steps:
       - checkout
@@ -79,18 +79,23 @@ jobs:
             - run: npm ci
             - run:
                 name: Install emulator
-                command: npm run firestore:install_emulator
+                command: npm run emulator:install
             - run:
                 name: Setup emulator
-                command: npm run firestore:setup_emulator
+                command: npm run emulator:setup
+            - run:
+                name: Test
+                command: npm run test:ci -- __tests__/emulator
+                environment:
+                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
 workflows:
   version: 2
   firebase-test:
     jobs:
       - firebase-setup
-      - test:
+      - test-firestore-real:
           requires:
             - firebase-setup
-      - test-firestore-rules:
+      - test-firestore-emulator:
           requires:
             - firebase-setup
