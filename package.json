@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:ci": "jest --ci --runInBand --reporters=default --reporters=jest-junit",
+    "test:ci": "jest --reporters=default --reporters=jest-junit --ci --runInBand ",
     "firebase:use_test": "firebase use test",
     "auth:clear": "ts-node scripts/clear_auth_users.ts",
     "auth:import": "firebase auth:import auth_export.json",
