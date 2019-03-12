@@ -81,8 +81,11 @@ jobs:
                 name: Install emulator
                 command: npm run emulator:install
             - run:
+                # Firestore emulator using both ipv4 and ipv6, but CircleCI only support ipv4.
+                # For override host to ipv4, launch emulator directory from jar.
+                # see: https://github.com/firebase/quickstart-nodejs/issues/48
                 name: Setup emulator
-                command: npm run emulator:setup
+                command: java -jar $(find ~/.cache/firebase/emulators/ -type f -name "cloud-firestore-emulator*.jar" | sort -r | head -n1) --host=127.0.0.1
             - run:
                 name: Test
                 command: npm run test:ci -- __tests__/emulator
