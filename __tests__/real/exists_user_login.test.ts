@@ -1,6 +1,6 @@
 import firebase from 'firebase'
-import config from '../firebase_config.json'
-import { dummyUsers } from '../src/test_util'
+import config from '../../firebase_config.json'
+import { dummyUsers } from '../../src/test_util'
 
 // 元々存在しているユーザーがauthで認証でき、ログインに相当する自分のFirestoreの変更ができるかのテスト
 

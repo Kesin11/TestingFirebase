@@ -45,7 +45,7 @@ jobs:
             - run:
                 name: Insert dummy data to Firestore
                 command: npm run firestore:insert_dummy
-  test:
+  test-firestore-real:
     executor:
       name: node/node
       tag: latest
@@ -60,7 +60,39 @@ jobs:
             - run: npm ci
             - run:
                 name: Test
-                command: npm run test:ci
+                command: npm run test:ci -- __tests__/real
+                environment:
+                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+            - store_test_results:
+                path: ./junit
+  test-firestore-emulator:
+    docker:
+      - image: circleci/openjdk:stretch-node
+    working_directory: ~/project
+
+    steps:
+      - checkout
+      - firebase/decode_secrets
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm ci
+            - run:
+                name: Install emulator
+                command: npm run emulator:install
+            - run:
+                # Firestore emulator using both ipv4 and ipv6, but CircleCI only support ipv4.
+                # For override host to ipv4, launch emulator directory from jar.
+                # see: https://github.com/firebase/quickstart-nodejs/issues/48
+                name: Setup emulator
+                command: |
+                  java -jar \
+                  $(find ~/.cache/firebase/emulators/ -type f -name "cloud-firestore-emulator*.jar" | sort -r | head -n1) \
+                  --host=127.0.0.1
+                background: true
+            - run:
+                name: Test
+                command: npm run test:ci -- __tests__/emulator
                 environment:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
@@ -70,6 +102,9 @@ workflows:
   firebase-test:
     jobs:
       - firebase-setup
-      - test:
+      - test-firestore-real:
+          requires:
+            - firebase-setup
+      - test-firestore-emulator:
           requires:
             - firebase-setup
