@@ -13,8 +13,15 @@ service cloud.firestore {
       allow read: if isAuthUser();
       allow write: if isAuthor(uid);
 
-      match /private/{allChildren=**} {
-        allow read, write: if isAuthor(uid);
+      match /private/login {
+        allow read: if isAuthor(uid);
+        allow create, update: if isAuthor(uid) && loginValidation(request.resource.data);
+        allow delete: if false;
+      }
+      function loginValidation(data) {
+        return
+          data.keys().hasAll(['num', 'lastDate']) && // 送られたデータにnum, lastDateのキーを両方含む
+          data.num >= 0
       }
     }
   }
