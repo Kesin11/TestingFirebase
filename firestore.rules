@@ -1,7 +1,21 @@
 service cloud.firestore {
+  // Anonymasユーザーではない
+  function isAuthUser() {
+    return request.auth != null;
+  }
+  // リクエストしているuidと同一か
+  function isAuthor(uid) {
+    return uid == request.auth.uid;
+  }
+
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write;
+    match /users/{uid} {
+      allow read: if isAuthUser();
+      allow write: if isAuthor(uid);
+
+      match /private/{allChildren=**} {
+        allow read, write: if isAuthor(uid);
+      }
     }
   }
 }
