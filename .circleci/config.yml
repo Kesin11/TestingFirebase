@@ -95,6 +95,8 @@ jobs:
                 command: npm run test:ci -- __tests__/emulator
                 environment:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+            - store_test_results:
+                path: ./junit
 workflows:
   version: 2
   firebase-test:
