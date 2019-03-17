@@ -1,5 +1,6 @@
 import admin, { ServiceAccount } from 'firebase-admin'
 import serviceAccount from '../service_account.json'
+import { insertUserFixutre } from '../src/test_util'
 
 if (serviceAccount.project_id !== 'testing-firebase-test') {
   throw new Error('Insert dummy data allowed test project only! Replace to test project service_account.json')
@@ -14,14 +15,8 @@ const main = async () => {
   const db = admin.firestore()
 
   const listUsersResult = await admin.auth().listUsers()
-  listUsersResult.users.forEach(async (userRecord) => {
-    const uid = userRecord.uid
-
-    await db.collection(`/v/0/users/${uid}/private`).doc('login').set({
-      num: Math.round(Math.random() * 100),
-      lastDate: new Date()
-    })
-  })
+  const uids = listUsersResult.users.map((userRecord) => userRecord.uid)
+  await insertUserFixutre(db, '0', uids)
 }
 
 main().then(() => {
