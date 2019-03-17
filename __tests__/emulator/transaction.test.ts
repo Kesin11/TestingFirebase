@@ -28,7 +28,7 @@ describe('トランザクション', () => {
 
   beforeEach(async () => {
     // 初期データ作成
-    await myDb.collection(`/users`).doc(myUid).set({
+    await myDb.collection(`/v/0/users`).doc(myUid).set({
       userId: myUid,
       nickname: beforeNickname
     })
@@ -48,21 +48,21 @@ describe('トランザクション', () => {
   describe('コミット前後で', () => {
     test('他人はコミット前に更新後のデータを確認できない', async () => {
       await myDb.runTransaction(async (tx) => {
-        tx.update(myDb.collection('/users').doc(myUid), {
+        tx.update(myDb.collection('/v/0/users').doc(myUid), {
           nickname: afterNickname
         })
-        const user = await otherDb.collection('/users').doc(myUid).get()
+        const user = await otherDb.collection('/v/0/users').doc(myUid).get()
         expect(user.data()!.nickname).toBe(beforeNickname)
       })
     })
 
     test('他人はコミット後に更新後のデータを確認できる', async () => {
       await myDb.runTransaction(async (tx) => {
-        tx.update(myDb.collection('/users').doc(myUid), {
+        tx.update(myDb.collection('/v/0/users').doc(myUid), {
           nickname: afterNickname
         })
       })
-      const user = await otherDb.collection('/users').doc(myUid).get()
+      const user = await otherDb.collection('/v/0/users').doc(myUid).get()
       expect(user.data()!.nickname).toBe(afterNickname)
     })
   })
@@ -70,17 +70,17 @@ describe('トランザクション', () => {
   describe('失敗した場合に', () => {
     test('自分も他人はコミット前のデータの状態に戻っている', async () => {
       await myDb.runTransaction(async (tx) => {
-        tx.update(myDb.collection('/users').doc(myUid), {
+        tx.update(myDb.collection('/v/0/users').doc(myUid), {
           nickname: afterNickname
         })
 
         return Promise.reject('Transaction failed and rollback')
       }).catch((_err) => {})
 
-      let user = await myDb.collection('/users').doc(myUid).get()
+      let user = await myDb.collection('/v/0/users').doc(myUid).get()
       expect(user.data()!.nickname).toBe(beforeNickname)
 
-      user = await otherDb.collection('/users').doc(myUid).get()
+      user = await otherDb.collection('/v/0/users').doc(myUid).get()
       expect(user.data()!.nickname).toBe(beforeNickname)
     })
   })

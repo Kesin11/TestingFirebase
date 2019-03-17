@@ -24,8 +24,8 @@ describe('新規のユーザーが', () => {
     if (user && userId) {
       await user.delete()
       // コレクションがネストされている場合は上だけを削除しても再帰的に削除はされない
-      await db.collection(`/users/${userId}/private`).doc('login').delete()
-      await db.collection('/users').doc(userId).delete()
+      await db.collection(`/v/0/users/${userId}/private`).doc('login').delete()
+      await db.collection('/v/0/users').doc(userId).delete()
     }
     // firebaseが裏でコネクションを貼っている（？）のでjestが終了できない
     // 明示的にappを閉じておく
@@ -40,12 +40,12 @@ describe('新規のユーザーが', () => {
   test('ログイン情報を更新できる', async () => {
     const now = new Date()
     // ログイン情報を更新
-    await db.collection(`/users/${userId}/private`).doc('login').set({
+    await db.collection(`/v/0/users/${userId}/private`).doc('login').set({
       num: 1,
       lastDate: now,
     })
 
-    const newUserLogin = await db.collection(`/users/${userId}/private`).doc('login').get().then(doc => doc.data())
+    const newUserLogin = await db.collection(`/v/0/users/${userId}/private`).doc('login').get().then(doc => doc.data())
     expect(newUserLogin!.num).toBe(1)
     expect(newUserLogin!.lastDate.toDate()).toEqual(now)
   });

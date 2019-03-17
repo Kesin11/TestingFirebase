@@ -18,7 +18,7 @@ const validUserDb = firebase.initializeTestApp({
 describe('rules バリデーション', () => {
   beforeEach(async () => {
     // 初期データ作成
-    await validUserDb.collection(`/users/${validUserUid}/private`).doc('login').set({
+    await validUserDb.collection(`/v/0/users/${validUserUid}/private`).doc('login').set({
       num: 0,
       lastDate: new Date('1970/01/01')
     })
@@ -40,7 +40,7 @@ describe('rules バリデーション', () => {
 
     test('loginはユーザー自身が勝手に削除できない', async () => {
       const now = new Date()
-      const login =  db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login =  db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertFails(
         login.delete()
       )
@@ -52,7 +52,7 @@ describe('rules バリデーション', () => {
 
     test('numは正の値のみ', async () => {
       const now = new Date()
-      const login =  db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login =  db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertSucceeds(
         login.set({
           num: 1,
@@ -73,7 +73,7 @@ describe('rules バリデーション', () => {
 
     test('numとlastDateはセットで更新する必要がある', async () => {
       const now = new Date()
-      const login =  db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login =  db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertSucceeds(
         login.set({
           num: 1,

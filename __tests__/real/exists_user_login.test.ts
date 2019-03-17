@@ -28,7 +28,7 @@ describe('既存のダミーユーザーが', () => {
   test('ログイン情報にアクセスできる', async () => {
     const userId = user!.uid
     const db = firebase.firestore()
-    const userLogin = await db.collection(`/users/${userId}/private`).doc('login').get().then(doc => doc.data())
+    const userLogin = await db.collection(`/v/0/users/${userId}/private`).doc('login').get().then(doc => doc.data())
     expect(userLogin!).toHaveProperty('num')
     expect(userLogin!).toHaveProperty('lastDate')
   });
@@ -36,16 +36,16 @@ describe('既存のダミーユーザーが', () => {
   test('ログイン情報を更新できる', async () => {
     const userId = user!.uid
     const db = firebase.firestore()
-    const userLogin = await db.collection(`/users/${userId}/private`).doc('login').get().then(doc => doc.data())
+    const userLogin = await db.collection(`/v/0/users/${userId}/private`).doc('login').get().then(doc => doc.data())
 
     // ログイン情報を更新
-    await db.collection(`/users/${userId}/private`).doc('login').set({
+    await db.collection(`/v/0/users/${userId}/private`).doc('login').set({
       ...userLogin,
       num: userLogin!.num + 1,
       lastDate: new Date(),
     })
 
-    const newUserLogin = await db.collection(`/users/${userId}/private`).doc('login').get().then(doc => doc.data())
+    const newUserLogin = await db.collection(`/v/0/users/${userId}/private`).doc('login').get().then(doc => doc.data())
     expect(newUserLogin!.num).toBe(userLogin!.num + 1)
     expect(newUserLogin!.lastDate.seconds).toBeGreaterThan(userLogin!.lastDate.seconds)
   });

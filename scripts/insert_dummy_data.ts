@@ -17,7 +17,7 @@ const main = async () => {
   listUsersResult.users.forEach(async (userRecord) => {
     const uid = userRecord.uid
 
-    await db.collection(`/users/${uid}/private`).doc('login').set({
+    await db.collection(`/v/0/users/${uid}/private`).doc('login').set({
       num: Math.round(Math.random() * 100),
       lastDate: new Date()
     })

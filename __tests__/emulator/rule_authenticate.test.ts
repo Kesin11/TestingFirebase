@@ -23,7 +23,7 @@ const invalidUserDb = firebase.initializeTestApp({
 describe('rules 自分しかアクセスできないデータに', () => {
   beforeEach(async () => {
     // 初期データ作成
-    await validUserDb.collection(`/users/${validUserUid}/private`).doc('login').set({
+    await validUserDb.collection(`/v/0/users/${validUserUid}/private`).doc('login').set({
       num: 0,
       lastDate: new Date('1970/01/01')
     })
@@ -44,13 +44,13 @@ describe('rules 自分しかアクセスできないデータに', () => {
     const db = validUserDb
 
     test('ログイン情報をreadできる', async () => {
-      const login =  db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login =  db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertSucceeds(login.get())
     })
 
     test('ログイン情報をwriteできる', async () => {
       const now = new Date()
-      const login = db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login = db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertSucceeds(
         login.set({
           num: 1,
@@ -64,13 +64,13 @@ describe('rules 自分しかアクセスできないデータに', () => {
     const db = invalidUserDb
 
     test('ログイン情報をreadできない', async () => {
-      const login =  db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login =  db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertFails(login.get())
     })
 
     test('ログイン情報をwriteできない', async () => {
       const now = new Date()
-      const login = db.collection(`/users/${validUserUid}/private`).doc('login')
+      const login = db.collection(`/v/0/users/${validUserUid}/private`).doc('login')
       await firebase.assertFails(
         login.set({
           num: 1,
