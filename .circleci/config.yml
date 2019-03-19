@@ -97,6 +97,26 @@ jobs:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
                 path: ./junit
+  test-unittest:
+    executor:
+      name: node/node
+      tag: latest
+    working_directory: ~/project
+
+    steps:
+      - checkout
+      - firebase/decode_secrets
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm ci
+            - run:
+                name: Test
+                command: npm run test:ci -- __tests__/unit
+                environment:
+                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+            - store_test_results:
+                path: ./junit
 workflows:
   version: 2
   firebase-test:
@@ -106,5 +126,8 @@ workflows:
           requires:
             - firebase-setup
       - test-firestore-emulator:
+          requires:
+            - firebase-setup
+      - test-unittest:
           requires:
             - firebase-setup
