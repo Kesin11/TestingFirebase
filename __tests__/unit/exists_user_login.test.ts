@@ -1,5 +1,4 @@
 import firebase, { firestore } from 'firebase'
-import config from '../../firebase_config.json'
 
 // Firestoreに実際にアクセスする部分をmockすることで外部サービスに依存しないユニットテストとする例
 
@@ -62,17 +61,8 @@ const userRepositoryMock = new UserRepositoryMock()
 
 describe('ユニットテスト', () => {
   describe('Userクラスで', () => {
-    beforeAll(async () => {
-      firebase.initializeApp(config)
-
-      // UserRepositoryMockを使うことでFirestoreへ依存しなくて済むため、firebase.firestore()すら不要
-    })
-
-    afterAll(async () => {
-      // firebaseが裏でコネクションを貼っている（？）のでjestが終了できない
-      // 明示的にappを閉じておく
-      firebase.app().delete()
-    })
+    // UserRepositoryMockを使うことでFirestoreへ依存しなくて済むため、firebase.firestore()が不要
+    // Firestoreを使用しないので、firebase.initializeApp()すら不要になる
 
     test('ログイン情報にアクセスできる', async () => {
       const user = new User(userRepositoryMock, userId)

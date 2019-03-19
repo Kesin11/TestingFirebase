@@ -15,7 +15,19 @@ orbs:
                 echo $FIREBASE_SERVICE_ACCOUNT | base64 --decode > service_account.json
 
 jobs:
-  firebase-setup:
+  setup:
+    executor:
+      name: node/node
+      tag: latest
+    working_directory: ~/project
+    steps:
+      - checkout
+      - node/with-cache:
+          cache-version: v1
+          steps:
+            - run: npm ci
+
+  setup-firebase:
     executor:
       name: node/node
       tag: latest
@@ -45,12 +57,12 @@ jobs:
             - run:
                 name: Insert dummy data to Firestore
                 command: npm run firestore:insert_dummy
+
   test-firestore-real:
     executor:
       name: node/node
       tag: latest
     working_directory: ~/project
-
     steps:
       - checkout
       - firebase/decode_secrets
@@ -65,14 +77,13 @@ jobs:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
                 path: ./junit
+
   test-firestore-emulator:
     docker:
       - image: circleci/openjdk:stretch-node
     working_directory: ~/project
-
     steps:
       - checkout
-      - firebase/decode_secrets
       - node/with-cache:
           cache-version: v1
           steps:
@@ -97,15 +108,14 @@ jobs:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
                 path: ./junit
+
   test-unittest:
     executor:
       name: node/node
       tag: latest
     working_directory: ~/project
-
     steps:
       - checkout
-      - firebase/decode_secrets
       - node/with-cache:
           cache-version: v1
           steps:
@@ -117,17 +127,21 @@ jobs:
                   JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
             - store_test_results:
                 path: ./junit
+
 workflows:
   version: 2
   firebase-test:
     jobs:
-      - firebase-setup
+      - setup
+      - setup-firebase:
+          requires:
+            - setup
       - test-firestore-real:
           requires:
-            - firebase-setup
+            - setup-firebase
       - test-firestore-emulator:
           requires:
-            - firebase-setup
+            - setup
       - test-unittest:
           requires:
-            - firebase-setup
+            - setup
