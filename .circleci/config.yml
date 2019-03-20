@@ -5,7 +5,7 @@ orbs:
     commands:
       decode_secrets:
         steps:
-          # Get two secrets and rename. Then set base64 string to CircleCI env.
+          # 以下の2つのjsonはあらかじめFirebaseのWebUIから取得し、base64エンコードしたものを以下の変数名でCircleCIに登録しておくこと
           # FIEBASE_CONFIG=`base64 firebase_config_test.json`
           # FIEBASE_SERVICE_ACCOUNT=`base64 service_account_test.json`
           - run:
