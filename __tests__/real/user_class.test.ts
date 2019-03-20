@@ -10,7 +10,7 @@ const userConfig = dummyUsers()[1]
 let uid: string
 let db: firestore.Firestore
 
-describe('ユニットテスト', () => {
+describe('本物のFirestoreを使うテスト', () => {
   describe('Userクラスで', () => {
     beforeAll(async () => {
       firebase.initializeApp(config)
