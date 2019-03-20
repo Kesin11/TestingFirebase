@@ -8,18 +8,18 @@ import { generateRandomUserConfig } from '../../src/test_util'
 const prefix = `test-${uuid()}`
 
 const userConfig = generateRandomUserConfig()
-let user: firebase.User | null
-let db: firestore.Firestore
-let userId: string | undefined = undefined
 
 describe('テストスクリプト毎に隔離されたコレクションで', () => {
+  let db: firestore.Firestore
+  let user: firebase.User | null
+  let uid: string
   describe('新規のユーザーが', () => {
     beforeAll(async () => {
       firebase.initializeApp(config)
       db = firebase.firestore()
       await firebase.auth().createUserWithEmailAndPassword(userConfig.email, userConfig.password)
       user = await firebase.auth().currentUser
-      userId = user!.uid
+      uid = user!.uid
     })
 
     afterAll(async () => {
@@ -39,12 +39,12 @@ describe('テストスクリプト毎に隔離されたコレクションで', (
     test('ログイン情報を更新できる', async () => {
       const now = new Date()
       // ログイン情報を更新
-      await db.collection(`/v/${prefix}/users/${userId}/private`).doc('login').set({
+      await db.collection(`/v/${prefix}/users/${uid}/private`).doc('login').set({
         num: 1,
         lastDate: now,
       })
 
-      const newUserLogin = await db.collection(`/v/${prefix}/users/${userId}/private`).doc('login').get().then(doc => doc.data())
+      const newUserLogin = await db.collection(`/v/${prefix}/users/${uid}/private`).doc('login').get().then(doc => doc.data())
       expect(newUserLogin!.num).toBe(1)
       expect(newUserLogin!.lastDate.toDate()).toEqual(now)
     })

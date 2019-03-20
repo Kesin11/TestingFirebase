@@ -1,17 +1,18 @@
 import * as firebase from '@firebase/testing'
 import uuid from 'uuid/v4'
-import { readFileSync } from 'fs';
+import { readFileSync } from 'fs'
 
 // エミュレータでトランザクション処理がちゃんと実現されているかの確認
 
+// エミュレーターのメモリ空間はprojectId毎に分けられるので、テストスクリプト毎にユニークになるようにprojectIdをランダムにする
 const projectId = `test-${uuid()}`
 firebase.loadFirestoreRules({
   projectId,
   rules: readFileSync('firestore.rules', 'utf8')
 })
 
-let myUid = 'my'
-let otherUid = 'other'
+const myUid = 'my'
+const otherUid = 'other'
 
 const myDb = firebase.initializeTestApp({
   projectId,

@@ -1,20 +1,20 @@
 import { firestore } from 'firebase'
 import * as firebase from '@firebase/testing'
 import uuid from 'uuid/v4'
-import { readFileSync } from 'fs';
+import { readFileSync } from 'fs'
 
+// エミュレーターのメモリ空間はprojectId毎に分けられるので、テストスクリプト毎にユニークになるようにprojectIdをランダムにする
 const projectId = `test-${uuid()}`
 firebase.loadFirestoreRules({
   projectId,
   rules: readFileSync('firestore.rules', 'utf8')
 })
 
-let db: firestore.Firestore
-let uid: string | undefined = undefined
+const uid = 'test-user'
 
 describe('既存のダミーユーザーが', () => {
+  let db: firestore.Firestore
   beforeAll(async () => {
-    uid = 'test-user'
     db = firebase.initializeTestApp({
       projectId,
       auth: { uid }
