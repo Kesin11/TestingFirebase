@@ -1,4 +1,6 @@
 # TestingFirebase
+[![CircleCI](https://circleci.com/gh/Kesin11/TestingFirebase/tree/master.svg?style=svg)](https://circleci.com/gh/Kesin11/TestingFirebase/tree/master)
+
 Firebaseのプロジェクトを本格的にテストするサンプル
 
 # プロジェクト構成
