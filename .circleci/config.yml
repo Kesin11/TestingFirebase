@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@0.0.8
+  node: circleci/node@1.1.6
   firebase:
     commands:
       decode_secrets:
@@ -17,8 +17,8 @@ orbs:
 jobs:
   setup:
     executor:
-      name: node/node
-      tag: latest
+      name: node/default
+      tag: "12"
     working_directory: ~/project
     steps:
       - checkout
@@ -29,8 +29,8 @@ jobs:
 
   setup-firebase:
     executor:
-      name: node/node
-      tag: latest
+      name: node/default
+      tag: "12"
     working_directory: ~/project
     steps:
       - checkout
@@ -60,8 +60,8 @@ jobs:
 
   test-firestore-real:
     executor:
-      name: node/node
-      tag: latest
+      name: node/default
+      tag: "12"
     working_directory: ~/project
     steps:
       - checkout
@@ -90,7 +90,7 @@ jobs:
             - run: npm ci
             - run:
                 name: Install emulator
-                command: npm run emulator:install
+                command: npm run emulators:setup
             - run:
                 # Firestore emulator using both ipv4 and ipv6, but CircleCI only support ipv4.
                 # For override host to ipv4, launch emulator directory from jar.
@@ -111,8 +111,8 @@ jobs:
 
   test-unittest:
     executor:
-      name: node/node
-      tag: latest
+      name: node/default
+      tag: "12"
     working_directory: ~/project
     steps:
       - checkout
