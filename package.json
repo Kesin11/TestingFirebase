@@ -13,8 +13,9 @@
     "firestore:deploy": "firebase deploy --only firestore",
     "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
     "firestore:delete_all": "firebase firestore:delete --all-collections",
-    "emulator:install": "firebase setup:emulators:firestore",
-    "emulator:setup": "firebase serve --only firestore"
+    "emulators:setup": "firebase setup:emulators:firestore",
+    "emulators:start": "firebase emulators:start --only firestore",
+    "emulators:test": "firebase emulators:exec --only firestore 'npm run test'"
   },
   "repository": {
     "type": "git",
@@ -28,20 +29,20 @@
   "homepage": "https://github.com/Kesin11/TestingFirebase#readme",
   "private": true,
   "dependencies": {
-    "@firebase/testing": "0.7.4",
-    "@types/node": "11.11.0",
-    "firebase": "5.8.4",
-    "firebase-admin": "7.0.0",
-    "uuid": "3.3.2"
+    "@firebase/testing": "0.15.0",
+    "@types/node": "12.12.7",
+    "firebase": "7.3.0",
+    "firebase-admin": "8.7.0",
+    "uuid": "3.3.3"
   },
   "devDependencies": {
-    "@types/jest": "24.0.11",
-    "@types/uuid": "3.4.4",
-    "firebase-tools": "6.4.0",
-    "jest": "24.4.0",
-    "jest-junit": "6.3.0",
-    "ts-jest": "24.0.0",
-    "ts-node": "8.0.2",
-    "typescript": "3.3.3333"
+    "@types/jest": "24.0.22",
+    "@types/uuid": "3.4.6",
+    "firebase-tools": "7.7.0",
+    "jest": "24.9.0",
+    "jest-junit": "9.0.0",
+    "ts-jest": "24.1.0",
+    "ts-node": "8.4.1",
+    "typescript": "3.7.2"
   }
 }
