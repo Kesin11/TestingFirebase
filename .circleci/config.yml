@@ -74,7 +74,7 @@ jobs:
                 name: Test
                 command: npm run test:ci -- __tests__/real
                 environment:
-                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+                  JEST_JUNIT_OUTPUT_DIR: "./junit"
             - store_test_results:
                 path: ./junit
 
@@ -105,7 +105,7 @@ jobs:
                 name: Test
                 command: npm run test:ci -- __tests__/emulator
                 environment:
-                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+                  JEST_JUNIT_OUTPUT_DIR: "./junit"
             - store_test_results:
                 path: ./junit
 
@@ -124,7 +124,7 @@ jobs:
                 name: Test
                 command: npm run test:ci -- __tests__/unit
                 environment:
-                  JEST_JUNIT_OUTPUT: "./junit/test-results.xml"
+                  JEST_JUNIT_OUTPUT_DIR: "./junit"
             - store_test_results:
                 path: ./junit
 
