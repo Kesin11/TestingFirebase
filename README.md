@@ -3,6 +3,21 @@
 
 Firebaseのプロジェクトを本格的にテストするサンプル
 
+# USAGE
+```sh
+# login
+firebase login --no-localhost
+
+# start emulator
+npm run emulators:start
+
+# test
+npm run test
+
+# or using emulators:exec
+npm run emulators:test
+```
+
 # プロジェクト構成
 開発用のdev、テスト用のtestのFirebaseプロジェクトが別々に分かれている想定。　　
 開発はdevで行い、CIでのテストをtestで行う。
