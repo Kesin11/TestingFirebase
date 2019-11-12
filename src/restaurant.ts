@@ -1,3 +1,6 @@
+import { firestore as admin_firestore } from "firebase-admin"
+import { firestore } from 'firebase'
+
 const COLLECTION_PATH = '/restaurants'
 
 export type Restaurant = {
@@ -6,8 +9,8 @@ export type Restaurant = {
   name: string
 }
 
-export class RestaurantModel {
-  constructor(public firestore: FirebaseFirestore.Firestore) {}
+export class RestaurantAdminModel {
+  constructor(private firestore: admin_firestore.Firestore) {}
 
   async add(name: string) {
     return this.firestore.collection(COLLECTION_PATH).add({
@@ -17,6 +20,14 @@ export class RestaurantModel {
     })
   }
   
+  async getAll() {
+    return this.firestore.collection(COLLECTION_PATH).get()
+  }
+}
+
+export class RestaurantUserModel {
+  constructor(private firestore: firestore.Firestore) {}
+
   async getAll() {
     return this.firestore.collection(COLLECTION_PATH).get()
   }

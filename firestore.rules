@@ -9,23 +9,31 @@ service cloud.firestore {
   }
 
   match /databases/{database}/documents {
-    match /v/{version} {
-      match /users/{uid} {
-        // 少なくともエミュではなぜかトランザクション中でのupdateだとisAuthUser()がtrueにならないので一旦if trueにしておく
-        allow read, write: if true;
-        // allow read, write: if isAuthUser();
+    match /restaurants/{restaurantId} {
+      allow read: if isAuthUser();
+      allow write: if false;
 
-        match /private/login {
-          allow read: if isAuthor(uid);
-          allow create, update: if isAuthor(uid) && loginValidation(request.resource.data);
-          allow delete: if false;
-        }
-        function loginValidation(data) {
-          return
-            data.keys().hasAll(['num', 'lastDate']) && // 送られたデータにnum, lastDateのキーを両方含む
-            data.num >= 0
-        }
+      match /ratings/{ratingId} {
+        allow read, write: if isAuthUser();
       }
     }
+    // match /v/{version} {
+    //   match /users/{uid} {
+    //     // 少なくともエミュではなぜかトランザクション中でのupdateだとisAuthUser()がtrueにならないので一旦if trueにしておく
+    //     allow read, write: if true;
+    //     // allow read, write: if isAuthUser();
+
+    //     match /private/login {
+    //       allow read: if isAuthor(uid);
+    //       allow create, update: if isAuthor(uid) && loginValidation(request.resource.data);
+    //       allow delete: if false;
+    //     }
+    //     function loginValidation(data) {
+    //       return
+    //         data.keys().hasAll(['num', 'lastDate']) && // 送られたデータにnum, lastDateのキーを両方含む
+    //         data.num >= 0
+    //     }
+    //   }
+    // }
   }
 }
