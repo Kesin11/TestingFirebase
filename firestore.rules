@@ -13,27 +13,14 @@ service cloud.firestore {
       allow read: if isAuthUser();
       allow write: if false;
 
-      match /ratings/{ratingId} {
-        allow read, write: if isAuthUser();
+      match /ratings/{uid} {
+        allow read: if isAuthUser();
+        allow write: if isAuthUser() &&
+          isAuthor(uid) &&
+          request.resource.data.rating > 0 &&
+          request.resource.data.rating <= 5 &&
+          request.resource.data.updatedAt == request.time;
       }
     }
-    // match /v/{version} {
-    //   match /users/{uid} {
-    //     // 少なくともエミュではなぜかトランザクション中でのupdateだとisAuthUser()がtrueにならないので一旦if trueにしておく
-    //     allow read, write: if true;
-    //     // allow read, write: if isAuthUser();
-
-    //     match /private/login {
-    //       allow read: if isAuthor(uid);
-    //       allow create, update: if isAuthor(uid) && loginValidation(request.resource.data);
-    //       allow delete: if false;
-    //     }
-    //     function loginValidation(data) {
-    //       return
-    //         data.keys().hasAll(['num', 'lastDate']) && // 送られたデータにnum, lastDateのキーを両方含む
-    //         data.num >= 0
-    //     }
-    //   }
-    // }
   }
 }
