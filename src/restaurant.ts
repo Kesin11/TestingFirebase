@@ -11,6 +11,7 @@ export type Restaurant = {
 
 export class RestaurantAdminModel {
   constructor(private firestore: admin_firestore.Firestore) {}
+  collectionRef() { return this.firestore.collection(COLLECTION_PATH) }
 
   async add(name: string) {
     return this.firestore.collection(COLLECTION_PATH).add({
@@ -27,6 +28,7 @@ export class RestaurantAdminModel {
 
 export class RestaurantUserModel {
   constructor(private firestore: firestore.Firestore) {}
+  collectionRef() { return this.firestore.collection(COLLECTION_PATH) }
 
   async getAll() {
     return this.firestore.collection(COLLECTION_PATH).get()
