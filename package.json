@@ -16,7 +16,7 @@
     "firestore:delete_all": "firebase firestore:delete --all-collections",
     "emulators:setup": "firebase setup:emulators:firestore",
     "emulators:start": "firebase emulators:start --only firestore,functions",
-    "emulators:test": "firebase emulators:exec --only firestore 'npm run test'"
+    "emulators:test": "firebase --project test emulators:exec --only firestore,functions 'npm run test'"
   },
   "repository": {
     "type": "git",
