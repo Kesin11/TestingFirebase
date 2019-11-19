@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:ci": "jest --reporters=default --reporters=jest-junit --ci --runInBand ",
+    "firebase:use_dev": "firebase use dev",
     "firebase:use_test": "firebase use test",
     "auth:clear": "ts-node scripts/clear_auth_users.ts",
     "auth:import": "firebase auth:import auth_export.json",
@@ -14,7 +15,7 @@
     "firestore:insert_dummy": "ts-node scripts/insert_dummy_data.ts",
     "firestore:delete_all": "firebase firestore:delete --all-collections",
     "emulators:setup": "firebase setup:emulators:firestore",
-    "emulators:start": "firebase emulators:start --only firestore",
+    "emulators:start": "firebase emulators:start --only firestore,functions",
     "emulators:test": "firebase emulators:exec --only firestore 'npm run test'"
   },
   "repository": {
