@@ -2,6 +2,7 @@ import { firestore as admin_firestore } from "firebase-admin"
 import * as firebase from '@firebase/testing'
 import { readFileSync } from 'fs'
 import { RestaurantAdminModel } from "../../src/restaurant"
+import { RatingAdminModel } from "../../src/rating"
 
 // FunctionsのエミュレータのprojectIdは.firebasercで定義されているものが使われる
 // 本物のFirebaseプロジェクトのprojectIdと一致させないとFirestoreトリガーのFunctionsがエミュレータで発火されない
@@ -12,7 +13,7 @@ firebase.loadFirestoreRules({
   rules: readFileSync('firestore.rules', 'utf8')
 })
 
-const uid = 'test-user'
+const userIds = ['test-user1', 'test-user2']
 
 const restaurantNames = [
   'Super burger',
@@ -20,15 +21,23 @@ const restaurantNames = [
   'Fire stake'
 ]
 
+// user SDKとadmin SDKのFirestoreは型レベルでは別物だが、initializeAdminAppはuser SDKのFirestoreを返すので無理やりキャスト
+const adminFirestore = firebase.initializeAdminApp({
+  projectId
+}).firestore() as unknown as admin_firestore.Firestore
+const restaurantModel = new RestaurantAdminModel(adminFirestore)
+const ratingModel = new RatingAdminModel(adminFirestore)
+
 describe('ratings', () => {
-  let adminFirestore: admin_firestore.Firestore
-
+  let restaurantIds: string[] = []
+  let restaurantId: string
   beforeAll(async () => {
-    // user SDKとadmin SDKのFirestoreは型レベルでは別物だが、initializeAdminAppはuser SDKのFirestoreを返すので無理やりキャスト
-    adminFirestore = firebase.initializeAdminApp({
-      projectId
-    }).firestore() as unknown as admin_firestore.Firestore
-
+    // ダミーのレストランを追加
+    for (const name of restaurantNames) {
+      const docRef = await restaurantModel.add(name)
+      restaurantIds.push(docRef.id)
+    }
+    restaurantId = restaurantIds[0]
   })
 
   beforeEach(async () => {
@@ -46,18 +55,38 @@ describe('ratings', () => {
     })
   })
 
-  describe('restaurants.create', () => {
-    test('trigger', async () => {
-      // ダミーのレストランを追加
-      const restaurantModel = new RestaurantAdminModel(adminFirestore)
-      for (const name of restaurantNames) {
-        await restaurantModel.add(name)
+  describe('rating create', () => {
+    let unsubscribe: () => void
+    // snapshotのsubscribeを解除
+    afterEach(async () => {
+      if (unsubscribe) {
+        unsubscribe()
       }
+    })
 
-      await new Promise((resolve) => {
-        restaurantModel.collectionRef().onSnapshot((snapshot) => {
-          resolve()
-        })
+    test('functions calculate rate avg', (done) => {
+      const ratings = [3, 5]
+      ratingModel.set(restaurantId, {
+        rating: ratings[0],
+        text: 'rating three',
+        userId: userIds[0]
+      })
+      ratingModel.set(restaurantId, {
+        rating: ratings[1],
+        text: 'rating five',
+        userId: userIds[1]
+      })
+
+      const expectAvgRatings = (ratings[0] + ratings[1]) / ratings.length
+      const expectNumRatings = ratings.length
+      unsubscribe = restaurantModel.collectionRef().doc(restaurantId).onSnapshot((snap) => {
+        const data = snap.data()!
+        // functionsが正しく動作すればnumRatingsが2, avgRatingが4になるはず
+        // functionsは2回実行されるはずなので、そのうち1回でも望んだ結果が来ればOK
+        if (data.numRatings === expectNumRatings) {
+          expect(data.avgRating).toEqual(expectAvgRatings)
+          done()
+        }
       })
     })
   })
