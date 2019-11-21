@@ -1,40 +1,31 @@
 import * as functions from 'firebase-functions'
-import admin from 'firebase-admin'
+import * as admin from 'firebase-admin'
 
 const REVIEW_PATH = '/restaurants/{restaurantId}/ratings/{ratingId}'
 admin.initializeApp(functions.config().firebase)
-// const firestore = admin.firestore()
+const firestore = admin.firestore()
 
 console.log('[functions] Start functions')
 
-export const writeRestaurant = functions.firestore
-  .document('/restaurants/{restaurandId}')
-  .onWrite(async (change, context) => {
-    console.log('[functions on: restaurants]', change.after.data())
-    return
-  })
-
 export const updateRestaurantRating = functions.firestore
   .document(REVIEW_PATH)
-  .onWrite(async (change, context) => {
-    return console.log('[functions on: ratings]', change.after.data())
-    // const review = snapshot.data()
+  .onCreate(async (change, context) => {
+    const rating = change.data()
+    const restaurantId = context.params.restaurantId
+    if (!restaurantId) return
 
-    // const restaurantId = context.params.restaurantId
-    // const restaurantRef = firestore.collection('/restaurant').doc(restaurantId)
-    // const restaurant = await restaurantRef.get().then(doc => doc.data())
-    // if (!review || !restaurant) return
-    // // TODO: start tx
-    // const newRateAvg = (restaurant.ratingAvg + review.rate) / (restaurant.reviewAvg + 1)
-    // console.log(newRateAvg)
-    // await restaurantRef.update({
-    //   rateAvg: newRateAvg,
-    //   reviewNum: restaurant.reviewNum + 1,
-    // })
-    // end tx
+    // 現在のrateAvg, rateNumの取得->更新はアトミックである必要があるのでトランザクションで行う
+    await firestore.runTransaction(async (tx) => {
+      const restaurantRef = firestore.collection('/restaurants').doc(restaurantId)
+      const restaurant = await tx.get(restaurantRef).then((doc) => doc.data())
+      console.dir(restaurant)
+      if (!rating || !restaurant) return
 
-    // (1 + 3) / 2 = 2
-    // (1 + 3 + 5) / 3 = 3
-    // (4 + 5) / 3 = 3
-    // (sum + b) / num + 1
+      const newRateAvg = (restaurant.avgRating + rating.rating) / (restaurant.numRatings + 1)
+      console.dir(newRateAvg)
+      tx.update(restaurantRef, {
+        avgRating: newRateAvg,
+        numRatings: restaurant.numRatings + 1,
+      })
+    })
 })

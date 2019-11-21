@@ -32,6 +32,11 @@ describe('ratings', () => {
   let restaurantIds: string[] = []
   let restaurantId: string
   beforeAll(async () => {
+    // エミュレータが起動され続けている場合に前のデータが残っている可能性あるため
+    await firebase.clearFirestoreData({
+      projectId
+    })
+
     // ダミーのレストランを追加
     for (const name of restaurantNames) {
       const docRef = await restaurantModel.add(name)
@@ -88,6 +93,6 @@ describe('ratings', () => {
           done()
         }
       })
-    })
+    }, 1000)
   })
 })
