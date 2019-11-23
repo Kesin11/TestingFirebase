@@ -1,16 +1,16 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 
-const REVIEW_PATH = '/restaurants/{restaurantId}/ratings/{ratingId}'
+const REVIEW_PATH = '/restaurants/{restaurantId}/reviews/{reviewId}'
 admin.initializeApp(functions.config().firebase)
 const firestore = admin.firestore()
 
 console.log('[functions] Start functions')
 
-export const updateRestaurantRating = functions.firestore
+export const updateRestaurantRate = functions.firestore
   .document(REVIEW_PATH)
   .onCreate(async (change, context) => {
-    const rating = change.data()
+    const review = change.data()
     const restaurantId = context.params.restaurantId
     if (!restaurantId) return
 
@@ -19,13 +19,13 @@ export const updateRestaurantRating = functions.firestore
       const restaurantRef = firestore.collection('/restaurants').doc(restaurantId)
       const restaurant = await tx.get(restaurantRef).then((doc) => doc.data())
       console.dir(restaurant)
-      if (!rating || !restaurant) return
+      if (!review || !restaurant) return
 
-      const newRateAvg = (restaurant.avgRating + rating.rating) / (restaurant.numRatings + 1)
+      const newRateAvg = (restaurant.rateAvg + review.rate) / (restaurant.rateNum + 1)
       console.dir(newRateAvg)
       tx.update(restaurantRef, {
-        avgRating: newRateAvg,
-        numRatings: restaurant.numRatings + 1,
+        rateAvg: newRateAvg,
+        rateNum: restaurant.rateNum + 1,
       })
     })
 })

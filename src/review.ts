@@ -1,34 +1,34 @@
 import { firestore as admin_firestore } from "firebase-admin"
 import { firestore } from "firebase";
-// （認証ユーザーのみ、自分のレビューは店毎に1つだけ、timestampはサーバー時間、ratingは0-5のint）
-export type Rating = {
-  rating: number
+// （認証ユーザーのみ、自分のレビューは店毎に1つだけ、timestampはサーバー時間、rateは0-5のint）
+export type Review = {
+  rate: number
   text: string
   updatedAt: firestore.Timestamp
   userId: string
 }
-export type RatingInput = Omit<Rating, 'updatedAt'>
+export type ReviewInput = Omit<Review, 'updatedAt'>
 
-export class RatingAdminModel {
+export class ReviewAdminModel {
   constructor(private firestore: admin_firestore.Firestore) {}
   collectionRef (restaurantId: string) {
-    return this.firestore.collection(`/restaurants/${restaurantId}/ratings`)
+    return this.firestore.collection(`/restaurants/${restaurantId}/reviews`)
   }
 
-  async set (restaurantId: string, rating: RatingInput) {
-    const userId = rating.userId
+  async set (restaurantId: string, review: ReviewInput) {
+    const userId = review.userId
     return this.collectionRef(restaurantId).doc(userId).set({
-      ...rating,
+      ...review,
       updatedAt: firestore.FieldValue.serverTimestamp()
     })
   }
 }
 
-export class RatingUserModel {
+export class ReviewUserModel {
   constructor(private firestore: firestore.Firestore) {}
 
   collectionRef (restaurantId: string) {
-    return this.firestore.collection(`/restaurants/${restaurantId}/ratings`)
+    return this.firestore.collection(`/restaurants/${restaurantId}/reviews`)
   }
 
   async get (restaurantId: string, userId: string) {
@@ -39,10 +39,10 @@ export class RatingUserModel {
     return this.collectionRef(restaurantId).get()
   }
 
-  async set (restaurantId: string, rating: RatingInput) {
-    const userId = rating.userId
+  async set (restaurantId: string, review: ReviewInput) {
+    const userId = review.userId
     return this.collectionRef(restaurantId).doc(userId).set({
-      ...rating,
+      ...review,
       updatedAt: firestore.FieldValue.serverTimestamp()
     })
   }

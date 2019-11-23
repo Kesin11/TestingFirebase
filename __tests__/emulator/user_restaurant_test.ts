@@ -4,7 +4,6 @@ import * as firebase from '@firebase/testing'
 import uuid from 'uuid/v4'
 import { readFileSync } from 'fs'
 import { RestaurantUserModel, RestaurantAdminModel } from '../../src/restaurant'
-import { RatingUserModel } from "../../src/rating"
 
 // エミュレーターのメモリ空間はprojectId毎に分けられるので、テストスクリプト毎にユニークになるようにprojectIdをランダムにする
 const projectId = `test-${uuid()}`

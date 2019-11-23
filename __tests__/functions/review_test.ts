@@ -2,7 +2,7 @@ import { firestore as admin_firestore } from "firebase-admin"
 import * as firebase from '@firebase/testing'
 import { readFileSync } from 'fs'
 import { RestaurantAdminModel } from "../../src/restaurant"
-import { RatingAdminModel } from "../../src/rating"
+import { ReviewAdminModel } from "../../src/review"
 
 // FunctionsのエミュレータのprojectIdは.firebasercで定義されているものが使われる
 // 本物のFirebaseプロジェクトのprojectIdと一致させないとFirestoreトリガーのFunctionsがエミュレータで発火されない
@@ -26,9 +26,9 @@ const adminFirestore = firebase.initializeAdminApp({
   projectId
 }).firestore() as unknown as admin_firestore.Firestore
 const restaurantModel = new RestaurantAdminModel(adminFirestore)
-const ratingModel = new RatingAdminModel(adminFirestore)
+const reviewModel = new ReviewAdminModel(adminFirestore)
 
-describe('ratings', () => {
+describe('reviews', () => {
   let restaurantIds: string[] = []
   let restaurantId: string
   beforeAll(async () => {
@@ -60,7 +60,7 @@ describe('ratings', () => {
     })
   })
 
-  describe('rating create', () => {
+  describe('when create reviews', () => {
     let unsubscribe: () => void
     // snapshotのsubscribeを解除
     afterEach(async () => {
@@ -70,26 +70,26 @@ describe('ratings', () => {
     })
 
     test('functions calculate rate avg', (done) => {
-      const ratings = [3, 5]
-      ratingModel.set(restaurantId, {
-        rating: ratings[0],
+      const rates = [3, 5]
+      reviewModel.set(restaurantId, {
+        rate: rates[0],
         text: 'rating three',
         userId: userIds[0]
       })
-      ratingModel.set(restaurantId, {
-        rating: ratings[1],
+      reviewModel.set(restaurantId, {
+        rate: rates[1],
         text: 'rating five',
         userId: userIds[1]
       })
 
-      const expectAvgRatings = (ratings[0] + ratings[1]) / ratings.length
-      const expectNumRatings = ratings.length
+      const expectRateAvg = (rates[0] + rates[1]) / rates.length
+      const expectRateNum = rates.length
       unsubscribe = restaurantModel.collectionRef().doc(restaurantId).onSnapshot((snap) => {
         const data = snap.data()!
-        // functionsが正しく動作すればnumRatingsが2, avgRatingが4になるはず
+        // functionsが正しく動作すればrateNumが2, rateAvgが4になるはず
         // functionsは2回実行されるはずなので、そのうち1回でも望んだ結果が来ればOK
-        if (data.numRatings === expectNumRatings) {
-          expect(data.avgRating).toEqual(expectAvgRatings)
+        if (data.rateNum === expectRateNum) {
+          expect(data.rateAvg).toEqual(expectRateAvg)
           done()
         }
       })

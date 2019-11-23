@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:watch": "jest --watch",
     "test:ci": "jest --reporters=default --reporters=jest-junit --ci --runInBand ",
     "firebase:use_dev": "firebase use dev",
     "firebase:use_test": "firebase use test",

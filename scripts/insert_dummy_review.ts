@@ -28,17 +28,17 @@ const main = async () => {
 
   for (const id of restaurantIds) {
     const dummyUid = Math.random().toString(36).slice(-8)
-    const ref = firestore.collection(`/restaurants/${id}/ratings`).doc(dummyUid)
+    const ref = firestore.collection(`/restaurants/${id}/reviews`).doc(dummyUid)
     await ref.set({
-      rating: randomRate(),
+      rate: randomRate(),
       text: 'test',
       userId: dummyUid,
       updatedAt: FieldValue.serverTimestamp()
     }) 
 
-    const ratingSnapshot = await firestore.collection(`/restaurants/${id}/ratings`).get()
+    const reviewSnapshot = await firestore.collection(`/restaurants/${id}/reviews`).get()
     console.log('restaurant:', id)
-    ratingSnapshot.forEach((doc) => console.log(doc.data()))
+    reviewSnapshot.forEach((doc) => console.log(doc.data()))
   }
 
   snapshot = await restaurantModel.getAll()

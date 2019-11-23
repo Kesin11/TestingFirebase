@@ -4,8 +4,8 @@ import { firestore } from 'firebase'
 const COLLECTION_PATH = '/restaurants'
 
 export type Restaurant = {
-  avgRating: number
-  numRatings: number
+  rateAvg: number
+  rateNum: number
   name: string
 }
 
@@ -16,8 +16,8 @@ export class RestaurantAdminModel {
   async add(name: string) {
     return this.firestore.collection(COLLECTION_PATH).add({
       name,
-      avgRating: 0,
-      numRatings: 0
+      rateAvg: 0,
+      rateNum: 0
     })
   }
   

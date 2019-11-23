@@ -4,7 +4,7 @@ import * as firebase from '@firebase/testing'
 import uuid from 'uuid/v4'
 import { readFileSync } from 'fs'
 import { RestaurantUserModel, RestaurantAdminModel } from '../../src/restaurant'
-import { RatingUserModel } from "../../src/rating"
+import { ReviewUserModel } from "../../src/review"
 
 // エミュレーターのメモリ空間はprojectId毎に分けられるので、テストスクリプト毎にユニークになるようにprojectIdをランダムにする
 const projectId = `test-${uuid()}`
@@ -21,11 +21,11 @@ const restaurantNames = [
   'Fire stake'
 ]
 
-describe('ratings', () => {
+describe('reviews', () => {
   let userFirestore: firestore.Firestore
   let adminFirestore: admin_firestore.Firestore
   let restaurantUserModel: RestaurantUserModel
-  let ratingUserModel: RatingUserModel
+  let reviewUserModel: ReviewUserModel
 
   beforeAll(async () => {
     userFirestore = firebase.initializeTestApp({
@@ -33,7 +33,7 @@ describe('ratings', () => {
       auth: { uid }
     }).firestore()
     restaurantUserModel = new RestaurantUserModel(userFirestore)
-    ratingUserModel = new RatingUserModel(userFirestore)
+    reviewUserModel = new ReviewUserModel(userFirestore)
 
     // user SDKとadmin SDKのFirestoreは型レベルでは別物だが、initializeAdminAppはuser SDKのFirestoreを返すので無理やりキャスト
     adminFirestore = firebase.initializeAdminApp({
@@ -76,46 +76,46 @@ describe('ratings', () => {
         projectId,
         auth: undefined,
       }).firestore()
-      const noAuthRatingUserModel = new RatingUserModel(noAuthFirestore)
+      const noAuthReviewUserModel = new ReviewUserModel(noAuthFirestore)
 
-      firebase.assertFails(noAuthRatingUserModel.getAll(restaurantId))
+      firebase.assertFails(noAuthReviewUserModel.getAll(restaurantId))
     })
   })
 
   describe('CRUD', () => {
     test('作成できる', async () => {
-      const rating = {
-        rating: 3,
+      const review = {
+        rate: 3,
         text: 'とても美味しいお店です',
         userId: uid,
       }
-      await ratingUserModel.set(restaurantId, rating)
-      const addedRating = await ratingUserModel.get(restaurantId, uid).then((doc) => doc.data())
+      await reviewUserModel.set(restaurantId, review)
+      const addedReview = await reviewUserModel.get(restaurantId, uid).then((doc) => doc.data())
 
-      expect(addedRating).toEqual({
-        ...rating,
+      expect(addedReview).toEqual({
+        ...review,
         updatedAt: expect.any(firestore.Timestamp)
       })
     })
 
     test('編集できる', async () => {
-      const rating = {
-        rating: 3,
+      const review = {
+        rate: 3,
         text: 'とても美味しいお店です',
         userId: uid,
       }
-      await ratingUserModel.set(restaurantId, rating)
+      await reviewUserModel.set(restaurantId, review)
 
-      rating.text = 'とても美味しいお店です。追記：編集しました'
-      const editRating = {
-        ...rating,
+      review.text = 'とても美味しいお店です。追記：編集しました'
+      const editReview = {
+        ...review,
         text: 'とても美味しいお店です 追記: 編集しました'
       }
-      await ratingUserModel.set(restaurantId, editRating)
-      const editedRating = await ratingUserModel.get(restaurantId, uid).then((doc) => doc.data())
+      await reviewUserModel.set(restaurantId, editReview)
+      const editedReview = await reviewUserModel.get(restaurantId, uid).then((doc) => doc.data())
 
-      expect(editedRating).toEqual({
-        ...editRating,
+      expect(editedReview).toEqual({
+        ...editReview,
         updatedAt: expect.any(firestore.Timestamp)
       })
     })
@@ -123,30 +123,30 @@ describe('ratings', () => {
 
   describe('バリデーション', () => {
     test('自分以外のuser_idでは作成できない', async () => {
-      const rating = {
-        rating: 3,
+      const review = {
+        rate: 3,
         text: 'とても美味しいお店です',
         userId: 'hogehoge',
       }
-      firebase.assertFails(ratingUserModel.set(restaurantId, rating))
+      firebase.assertFails(reviewUserModel.set(restaurantId, review))
     })
 
-    test('負のrating', async () => {
-      const rating = {
-        rating: -1,
+    test('負のrate', async () => {
+      const review = {
+        rate: -1,
         text: 'とても美味しいお店です',
         userId: 'hogehoge',
       }
-      firebase.assertFails(ratingUserModel.set(restaurantId, rating))
+      firebase.assertFails(reviewUserModel.set(restaurantId, review))
     })
 
-    test('5以上のrating', async () => {
-      const rating = {
-        rating: 5,
+    test('5以上のrate', async () => {
+      const review = {
+        rate: 5,
         text: 'とても美味しいお店です',
         userId: 'hogehoge',
       }
-      firebase.assertFails(ratingUserModel.set(restaurantId, rating))
+      firebase.assertFails(reviewUserModel.set(restaurantId, review))
     })
   })
 })

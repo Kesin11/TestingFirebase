@@ -14,12 +14,12 @@ service cloud.firestore {
       allow read: if isAuthUser();
       allow write: if false;
 
-      match /ratings/{uid} {
+      match /reviews/{uid} {
         allow read: if isAuthUser();
         allow write: if isAuthUser() &&
           isAuthor(uid) &&
-          request.resource.data.rating > 0 &&
-          request.resource.data.rating <= 5 &&
+          request.resource.data.rate > 0 &&
+          request.resource.data.rate <= 5 &&
           request.resource.data.updatedAt == request.time;
       }
     }
