@@ -93,6 +93,6 @@ describe('ratings', () => {
           done()
         }
       })
-    }, 1000)
+    })
   })
 })
