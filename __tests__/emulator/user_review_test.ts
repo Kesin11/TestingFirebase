@@ -122,31 +122,59 @@ describe('reviews', () => {
   })
 
   describe('バリデーション', () => {
+    const base = {
+      rate: 3,
+      text: 'とても美味しいお店です',
+      userId: uid,
+    }
     test('自分以外のuser_idでは作成できない', async () => {
       const review = {
-        rate: 3,
-        text: 'とても美味しいお店です',
+        ...base,
         userId: 'hogehoge',
       }
       firebase.assertFails(reviewUserModel.set(restaurantId, review))
     })
 
-    test('負のrate', async () => {
-      const review = {
-        rate: -1,
-        text: 'とても美味しいお店です',
-        userId: 'hogehoge',
-      }
-      firebase.assertFails(reviewUserModel.set(restaurantId, review))
-    })
+    describe('rateが', () => {
+      test('負 NG', async () => {
+        const review = {
+          ...base,
+          rate: -1,
+        }
+        firebase.assertFails(reviewUserModel.set(restaurantId, review))
+      })
 
-    test('5以上のrate', async () => {
-      const review = {
-        rate: 5,
-        text: 'とても美味しいお店です',
-        userId: 'hogehoge',
-      }
-      firebase.assertFails(reviewUserModel.set(restaurantId, review))
+      test('0 NG', async () => {
+        const review = {
+          ...base,
+          rate: 0,
+        }
+        firebase.assertFails(reviewUserModel.set(restaurantId, review))
+      })
+
+      test('1 OK', async () => {
+        const review = {
+          ...base,
+          rate: 1,
+        }
+        firebase.assertSucceeds(reviewUserModel.set(restaurantId, review))
+      })
+
+      test('5 OK', async () => {
+        const review = {
+          ...base,
+          rate: 1,
+        }
+        firebase.assertSucceeds(reviewUserModel.set(restaurantId, review))
+      })
+
+      test('5より大きい NG', async () => {
+        const review = {
+          ...base,
+          rate: 6,
+        }
+        firebase.assertFails(reviewUserModel.set(restaurantId, review))
+      })
     })
   })
 })

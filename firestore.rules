@@ -18,7 +18,7 @@ service cloud.firestore {
         allow read: if isAuthUser();
         allow write: if isAuthUser() &&
           isAuthor(uid) &&
-          request.resource.data.rate > 0 &&
+          request.resource.data.rate >= 1 &&
           request.resource.data.rate <= 5 &&
           request.resource.data.updatedAt == request.time;
       }

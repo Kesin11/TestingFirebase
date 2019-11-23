@@ -1,6 +1,6 @@
 import { firestore as admin_firestore } from "firebase-admin"
 import { firestore } from "firebase";
-// （認証ユーザーのみ、自分のレビューは店毎に1つだけ、timestampはサーバー時間、rateは0-5のint）
+// （認証ユーザーのみ、自分のレビューは店毎に1つだけ、timestampはサーバー時間、rateは1-5のint）
 export type Review = {
   rate: number
   text: string
