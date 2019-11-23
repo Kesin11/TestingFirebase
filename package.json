@@ -25,20 +25,20 @@
   "homepage": "https://github.com/Kesin11/TestingFirebase#readme",
   "private": true,
   "dependencies": {
-    "@firebase/testing": "0.15.0",
-    "@types/node": "12.12.7",
-    "firebase": "7.3.0",
-    "firebase-admin": "8.7.0",
+    "@firebase/testing": "0.16.0",
+    "@types/node": "12.12.12",
+    "firebase": "7.5.0",
+    "firebase-admin": "8.8.0",
     "uuid": "3.3.3"
   },
   "devDependencies": {
-    "@types/jest": "24.0.22",
+    "@types/jest": "24.0.23",
     "@types/uuid": "3.4.6",
-    "firebase-tools": "7.7.0",
+    "firebase-tools": "7.8.1",
     "jest": "24.9.0",
     "jest-junit": "9.0.0",
-    "ts-jest": "24.1.0",
-    "ts-node": "8.4.1",
+    "ts-jest": "24.2.0",
+    "ts-node": "8.5.2",
     "typescript": "3.7.2"
   }
 }
