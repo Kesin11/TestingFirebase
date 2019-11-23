@@ -10,7 +10,7 @@
     "firebase:use_dev": "firebase use dev",
     "firebase:use_test": "firebase use test",
     "emulators:setup": "firebase setup:emulators:firestore",
-    "emulators:start": "firebase emulators:start --only firestore,functions",
+    "emulators:start": "firebase emulators:start",
     "emulators:test": "firebase --project test emulators:exec --only firestore,functions 'npm run test'"
   },
   "repository": {
@@ -26,6 +26,7 @@
   "private": true,
   "dependencies": {
     "@firebase/testing": "0.16.0",
+    "@google-cloud/pubsub": "1.1.5",
     "@types/node": "12.12.12",
     "firebase": "7.5.0",
     "firebase-admin": "8.8.0",

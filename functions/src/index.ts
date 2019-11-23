@@ -29,3 +29,10 @@ export const updateRestaurantRate = functions.firestore
       })
     })
 })
+
+export const pubsubFn = functions.pubsub.topic('test-topic').onPublish(async (msg, ctx) => {
+  console.log('Received pubsub');
+  console.log('json', JSON.stringify(msg.json), 'attrs', JSON.stringify(msg.attributes));
+  return true;
+});
+
