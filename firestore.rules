@@ -16,7 +16,7 @@ service cloud.firestore {
 
       match /reviews/{uid} {
         allow read: if isAuthUser();
-        allow write: if isAuthUser() &&
+        allow create: if isAuthUser() &&
           isAuthor(uid) &&
           request.resource.data.rate >= 1 &&
           request.resource.data.rate <= 5 &&

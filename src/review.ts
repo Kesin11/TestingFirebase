@@ -39,9 +39,13 @@ export class ReviewUserModel {
     return this.collectionRef(restaurantId).get()
   }
 
-  async set (restaurantId: string, review: ReviewInput) {
+  async create (restaurantId: string, review: ReviewInput) {
     const userId = review.userId
-    return this.collectionRef(restaurantId).doc(userId).set({
+    const docRef = this.collectionRef(restaurantId).doc(userId)
+    const snapshot = await docRef.get()
+    if (snapshot.exists) return
+
+    return docRef.set({
       ...review,
       updatedAt: firestore.FieldValue.serverTimestamp()
     })

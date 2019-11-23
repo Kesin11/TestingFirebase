@@ -4,7 +4,7 @@ import * as firebase from '@firebase/testing'
 import uuid from 'uuid/v4'
 import { readFileSync } from 'fs'
 import { RestaurantUserModel, RestaurantAdminModel } from '../../src/restaurant'
-import { ReviewUserModel } from "../../src/review"
+import { ReviewUserModel, ReviewAdminModel } from "../../src/review"
 
 // エミュレーターのメモリ空間はprojectId毎に分けられるので、テストスクリプト毎にユニークになるようにprojectIdをランダムにする
 const projectId = `test-${uuid()}`
@@ -28,6 +28,9 @@ describe('reviews', () => {
   let reviewUserModel: ReviewUserModel
 
   beforeAll(async () => {
+    // 前回の結果が残っていないように初期化
+    await firebase.clearFirestoreData({ projectId })
+
     userFirestore = firebase.initializeTestApp({
       projectId,
       auth: { uid }
@@ -39,7 +42,6 @@ describe('reviews', () => {
     adminFirestore = firebase.initializeAdminApp({
       projectId
     }).firestore() as unknown as admin_firestore.Firestore
-
   })
 
   let restaurantIds: string[] = []
@@ -50,13 +52,12 @@ describe('reviews', () => {
     for (const name of restaurantNames) {
       await restaurantModel.add(name)
     }
-  })
 
-    beforeEach(async () => {
-      const snapshot = await restaurantUserModel.getAll()
-      snapshot.forEach((doc) => restaurantIds.push(doc.id))
-      restaurantId = restaurantIds[0]
-    })
+    // 適当なレストランのidを保存
+    const snapshot = await restaurantUserModel.getAll()
+    snapshot.forEach((doc) => restaurantIds.push(doc.id))
+    restaurantId = restaurantIds[0]
+  })
 
   afterAll(async () => {
     // firebaseとのlistnerを削除しないとテストが終了できない
@@ -65,9 +66,7 @@ describe('reviews', () => {
 
   afterEach(async () => {
     // Firestoreのデータを初期化
-    await firebase.clearFirestoreData({
-      projectId
-    })
+    await firebase.clearFirestoreData({ projectId })
   })
 
   describe('未認証ユーザー', () => {
@@ -83,13 +82,14 @@ describe('reviews', () => {
   })
 
   describe('CRUD', () => {
-    test('作成できる', async () => {
-      const review = {
-        rate: 3,
-        text: 'とても美味しいお店です',
-        userId: uid,
-      }
-      await reviewUserModel.set(restaurantId, review)
+    const review = {
+      rate: 3,
+      text: 'とても美味しいお店です',
+      userId: uid,
+    }
+
+    test('createできる', async () => {
+      await reviewUserModel.create(restaurantId, review)
       const addedReview = await reviewUserModel.get(restaurantId, uid).then((doc) => doc.data())
 
       expect(addedReview).toEqual({
@@ -98,26 +98,21 @@ describe('reviews', () => {
       })
     })
 
-    test('編集できる', async () => {
-      const review = {
-        rate: 3,
-        text: 'とても美味しいお店です',
-        userId: uid,
-      }
-      await reviewUserModel.set(restaurantId, review)
+    test('updateできない', async () => {
+      await reviewUserModel.create(restaurantId, review)
 
-      review.text = 'とても美味しいお店です。追記：編集しました'
-      const editReview = {
-        ...review,
+      const docRef = reviewUserModel.collectionRef(restaurantId).doc(uid)
+      firebase.assertFails(docRef.update({
+        updatedAt: firestore.FieldValue.serverTimestamp(),
         text: 'とても美味しいお店です 追記: 編集しました'
-      }
-      await reviewUserModel.set(restaurantId, editReview)
-      const editedReview = await reviewUserModel.get(restaurantId, uid).then((doc) => doc.data())
+      }))
+    })
 
-      expect(editedReview).toEqual({
-        ...editReview,
-        updatedAt: expect.any(firestore.Timestamp)
-      })
+    test('deleteできない', async () => {
+      await reviewUserModel.create(restaurantId, review)
+
+      const docRef = reviewUserModel.collectionRef(restaurantId).doc(uid)
+      firebase.assertFails(docRef.delete())
     })
   })
 
@@ -127,12 +122,13 @@ describe('reviews', () => {
       text: 'とても美味しいお店です',
       userId: uid,
     }
+
     test('自分以外のuser_idでは作成できない', async () => {
       const review = {
         ...base,
         userId: 'hogehoge',
       }
-      firebase.assertFails(reviewUserModel.set(restaurantId, review))
+      firebase.assertFails(reviewUserModel.create(restaurantId, review))
     })
 
     describe('rateが', () => {
@@ -141,7 +137,7 @@ describe('reviews', () => {
           ...base,
           rate: -1,
         }
-        firebase.assertFails(reviewUserModel.set(restaurantId, review))
+        firebase.assertFails(reviewUserModel.create(restaurantId, review))
       })
 
       test('0 NG', async () => {
@@ -149,7 +145,7 @@ describe('reviews', () => {
           ...base,
           rate: 0,
         }
-        firebase.assertFails(reviewUserModel.set(restaurantId, review))
+        firebase.assertFails(reviewUserModel.create(restaurantId, review))
       })
 
       test('1 OK', async () => {
@@ -157,7 +153,7 @@ describe('reviews', () => {
           ...base,
           rate: 1,
         }
-        firebase.assertSucceeds(reviewUserModel.set(restaurantId, review))
+        firebase.assertSucceeds(reviewUserModel.create(restaurantId, review))
       })
 
       test('5 OK', async () => {
@@ -165,7 +161,7 @@ describe('reviews', () => {
           ...base,
           rate: 1,
         }
-        firebase.assertSucceeds(reviewUserModel.set(restaurantId, review))
+        firebase.assertSucceeds(reviewUserModel.create(restaurantId, review))
       })
 
       test('5より大きい NG', async () => {
@@ -173,7 +169,7 @@ describe('reviews', () => {
           ...base,
           rate: 6,
         }
-        firebase.assertFails(reviewUserModel.set(restaurantId, review))
+        firebase.assertFails(reviewUserModel.create(restaurantId, review))
       })
     })
   })
