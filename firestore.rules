@@ -23,5 +23,9 @@ service cloud.firestore {
           request.resource.data.updatedAt == request.time;
       }
     }
+    match /rankings/{id} {
+      allow read: if isAuthUser();
+      allow write: if false;
+    }
   }
 }

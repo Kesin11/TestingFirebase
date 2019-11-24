@@ -27,6 +27,9 @@ const main = async () => {
 
   console.log(`published test-topic: ${JSON.stringify(msg)}`)
 
+  const msg2 = await pubsub.topic('cron-restaurant-ranking').publishJSON({})
+  console.log(`published cron-restaurant-trigger: ${JSON.stringify(msg2)}`)
+
   // エミュレータではschedule用のtopicが認識されないらしく、エラーになる
   // const msgCron = await pubsub.topic('firebase-schedule-scheduledFunctionCrontab-us-central1').publishJSON({})
   // console.log(`published firebase-schedule-scheduledFunctionCrontab-us-central1: ${JSON.stringify(msgCron)}`)

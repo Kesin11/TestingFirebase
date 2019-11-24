@@ -4,8 +4,8 @@
   "description": "Testing firebase project",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "PUBSUB_EMULATOR_HOST=http://localhost:8085 jest",
+    "test:watch": "PUBSUB_EMULATOR_HOST=http://localhost:8085 jest --watch",
     "test:ci": "jest --reporters=default --reporters=jest-junit --ci --runInBand ",
     "firebase:use_dev": "firebase use dev",
     "firebase:use_test": "firebase use test",

@@ -34,7 +34,33 @@ export const pubsubFn = functions.pubsub.topic('test-topic').onPublish(async (ms
   console.log('Received pubsub: test-topic');
   console.log('json', JSON.stringify(msg.json), 'attrs', JSON.stringify(msg.attributes));
   return true;
-});
+})
+
+type Ranking = {
+  rank: number,
+  rateAvg: number,
+  restaurantId: string,
+  restaurantName: string,
+}
+export const cronRestaurantRanking = functions.pubsub.topic('cron-restaurant-ranking').onPublish(async (msg, ctx) => {
+  let rank = 1
+  const rankings: Ranking[] = []
+  const snapshot = await firestore.collection('/restaurants').orderBy('rateAvg', 'desc').get()
+  snapshot.forEach((doc) => {
+    const data = doc.data()
+    rankings.push({
+      rank: rank,
+      rateAvg: data.rateAvg,
+      restaurantId: doc.id,
+      restaurantName: data.name,
+    })
+    rank += 1
+  })
+
+  for (const ranking of rankings) {
+    await firestore.collection('/rankings').add(ranking)
+  }
+})
 
 // エミュレータではschedule用のtopicが認識されないらしく、発火はできない
 export const scheduledFunctionCrontab = functions.pubsub.schedule('5 11 * * *')
