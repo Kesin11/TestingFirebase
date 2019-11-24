@@ -31,8 +31,16 @@ export const updateRestaurantRate = functions.firestore
 })
 
 export const pubsubFn = functions.pubsub.topic('test-topic').onPublish(async (msg, ctx) => {
-  console.log('Received pubsub');
+  console.log('Received pubsub: test-topic');
   console.log('json', JSON.stringify(msg.json), 'attrs', JSON.stringify(msg.attributes));
   return true;
 });
 
+// エミュレータではschedule用のtopicが認識されないらしく、発火はできない
+export const scheduledFunctionCrontab = functions.pubsub.schedule('5 11 * * *')
+  .timeZone('Asia/Tokyo')
+  .onRun((context) => {
+    console.log('Received pubsub: firebase-schedule-scheduledFunctionCrontab-us-central1');
+    console.log('json', JSON.stringify(context))
+    return true
+})
