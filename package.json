@@ -6,14 +6,13 @@
   "scripts": {
     "test": "npm run test:emulator && npm run test:functions",
     "test:watch": "PUBSUB_EMULATOR_HOST=http://localhost:8085 jest --watch",
-    "test:emulator": "jest __tests__/emulator",
-    "test:functions": "PUBSUB_EMULATOR_HOST=http://localhost:8085 jest -i __tests__/functions",
-    "test:ci": "jest --reporters=default --reporters=jest-junit --ci --runInBand ",
+    "test:emulator": "JEST_JUNIT_OUTPUT_NAME=emulator.xml jest __tests__/emulator",
+    "test:functions": "JEST_JUNIT_OUTPUT_NAME=functions.xml PUBSUB_EMULATOR_HOST=http://localhost:8085 jest -i __tests__/functions",
+    "test:ci": "firebase --project test emulators:exec 'npm run test'",
     "firebase:use_dev": "firebase use dev",
     "firebase:use_test": "firebase use test",
     "emulators:setup": "firebase setup:emulators:firestore",
-    "emulators:start": "firebase emulators:start",
-    "emulators:test": "firebase --project test emulators:exec 'npm run test'"
+    "emulators:start": "firebase emulators:start"
   },
   "repository": {
     "type": "git",

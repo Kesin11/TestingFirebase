@@ -80,51 +80,22 @@ jobs:
 
   test-firestore-emulator:
     docker:
-      - image: circleci/openjdk:stretch-node
+      - image: circleci/openjdk:latest-node
     working_directory: ~/project
     steps:
       - checkout
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Install emulator
-                command: npm run emulators:setup
-            - run:
-                # Firestore emulator using both ipv4 and ipv6, but CircleCI only support ipv4.
-                # For override host to ipv4, launch emulator directory from jar.
-                # see: https://github.com/firebase/quickstart-nodejs/issues/48
-                name: Setup emulator
-                command: |
-                  java -jar \
-                  $(find ~/.cache/firebase/emulators/ -type f -name "cloud-firestore-emulator*.jar" | sort -r | head -n1) \
-                  --host=127.0.0.1
-                background: true
-            - run:
-                name: Test
-                command: npm run test:ci -- __tests__/emulator
-                environment:
-                  JEST_JUNIT_OUTPUT_DIR: "./junit"
-            - store_test_results:
-                path: ./junit
-
-  test-unittest:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
+      - run:
+          name: Setup functions
+          command: |
+            npm --prefix functions ci
+            npm --prefix functions run build
       - node/with-cache:
           cache-version: v1
           steps:
             - run: npm ci
             - run:
                 name: Test
-                command: npm run test:ci -- __tests__/unit
-                environment:
-                  JEST_JUNIT_OUTPUT_DIR: "./junit"
+                command: npm run test:ci
             - store_test_results:
                 path: ./junit
 
@@ -133,15 +104,9 @@ workflows:
   firebase-test:
     jobs:
       - setup
-      - setup-firebase:
-          requires:
-            - setup
-      - test-firestore-real:
-          requires:
-            - setup-firebase
+      # - setup-firebase:
+      #     requires:
+      #       - setup
       - test-firestore-emulator:
-          requires:
-            - setup
-      - test-unittest:
           requires:
             - setup
