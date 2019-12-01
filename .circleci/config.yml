@@ -1,6 +1,5 @@
 version: 2.1
 orbs:
-  node: circleci/node@1.1.6
   firebase:
     commands:
       decode_secrets:
@@ -26,15 +25,12 @@ jobs:
           command: |
             npm --prefix functions ci
             npm --prefix functions run build
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Test
-                command: npm run test:ci
-            - store_test_results:
-                path: ./junit
+      - run: npm ci
+      - run:
+          name: Test
+          command: npm run test:ci
+      - store_test_results:
+          path: ./junit
 
 workflows:
   version: 2
