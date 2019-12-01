@@ -15,69 +15,6 @@ orbs:
                 echo $FIREBASE_SERVICE_ACCOUNT | base64 --decode > service_account.json
 
 jobs:
-  setup:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-
-  setup-firebase:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - firebase/decode_secrets
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Select using Firebase project
-                command: npm run firebase:use_test -- --token $FIREBASE_TOKEN
-            - run:
-                name: Firebase auth clear exist users
-                command: npm run auth:clear
-            - run:
-                name: Firebase auth import users
-                command: npm run auth:import
-            - run:
-                name: Deploy Firestore
-                command: npm run firestore:deploy
-            - run:
-                name: Clean Firestore
-                command: npm run firestore:delete_all -- -y
-            - run:
-                name: Insert dummy data to Firestore
-                command: npm run firestore:insert_dummy
-
-  test-firestore-real:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - firebase/decode_secrets
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Test
-                command: npm run test:ci -- __tests__/real
-                environment:
-                  JEST_JUNIT_OUTPUT_DIR: "./junit"
-            - store_test_results:
-                path: ./junit
-
   test-firestore-emulator:
     docker:
       - image: circleci/openjdk:latest-node
@@ -103,10 +40,4 @@ workflows:
   version: 2
   firebase-test:
     jobs:
-      - setup
-      # - setup-firebase:
-      #     requires:
-      #       - setup
-      - test-firestore-emulator:
-          requires:
-            - setup
+      - test-firestore-emulator
