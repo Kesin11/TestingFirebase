@@ -1,147 +1,26 @@
 version: 2.1
-orbs:
-  node: circleci/node@1.1.6
-  firebase:
-    commands:
-      decode_secrets:
-        steps:
-          # 以下の2つのjsonはあらかじめFirebaseのWebUIから取得し、base64エンコードしたものを以下の変数名でCircleCIに登録しておくこと
-          # FIEBASE_CONFIG=`base64 firebase_config_test.json`
-          # FIEBASE_SERVICE_ACCOUNT=`base64 service_account_test.json`
-          - run:
-              name: Decode firebase_config.json and service_account.json
-              command: |
-                echo $FIREBASE_CONFIG | base64 --decode > firebase_config.json;
-                echo $FIREBASE_SERVICE_ACCOUNT | base64 --decode > service_account.json
 
 jobs:
-  setup:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-
-  setup-firebase:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - firebase/decode_secrets
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Select using Firebase project
-                command: npm run firebase:use_test -- --token $FIREBASE_TOKEN
-            - run:
-                name: Firebase auth clear exist users
-                command: npm run auth:clear
-            - run:
-                name: Firebase auth import users
-                command: npm run auth:import
-            - run:
-                name: Deploy Firestore
-                command: npm run firestore:deploy
-            - run:
-                name: Clean Firestore
-                command: npm run firestore:delete_all -- -y
-            - run:
-                name: Insert dummy data to Firestore
-                command: npm run firestore:insert_dummy
-
-  test-firestore-real:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - firebase/decode_secrets
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Test
-                command: npm run test:ci -- __tests__/real
-                environment:
-                  JEST_JUNIT_OUTPUT_DIR: "./junit"
-            - store_test_results:
-                path: ./junit
-
   test-firestore-emulator:
     docker:
-      - image: circleci/openjdk:stretch-node
+      - image: circleci/openjdk:latest-node
     working_directory: ~/project
     steps:
       - checkout
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Install emulator
-                command: npm run emulators:setup
-            - run:
-                # Firestore emulator using both ipv4 and ipv6, but CircleCI only support ipv4.
-                # For override host to ipv4, launch emulator directory from jar.
-                # see: https://github.com/firebase/quickstart-nodejs/issues/48
-                name: Setup emulator
-                command: |
-                  java -jar \
-                  $(find ~/.cache/firebase/emulators/ -type f -name "cloud-firestore-emulator*.jar" | sort -r | head -n1) \
-                  --host=127.0.0.1
-                background: true
-            - run:
-                name: Test
-                command: npm run test:ci -- __tests__/emulator
-                environment:
-                  JEST_JUNIT_OUTPUT_DIR: "./junit"
-            - store_test_results:
-                path: ./junit
-
-  test-unittest:
-    executor:
-      name: node/default
-      tag: "12"
-    working_directory: ~/project
-    steps:
-      - checkout
-      - node/with-cache:
-          cache-version: v1
-          steps:
-            - run: npm ci
-            - run:
-                name: Test
-                command: npm run test:ci -- __tests__/unit
-                environment:
-                  JEST_JUNIT_OUTPUT_DIR: "./junit"
-            - store_test_results:
-                path: ./junit
+      - run:
+          name: Setup functions
+          command: |
+            npm --prefix functions ci
+            npm --prefix functions run build
+      - run: npm ci
+      - run:
+          name: Test
+          command: npm run test:ci
+      - store_test_results:
+          path: ./junit
 
 workflows:
   version: 2
   firebase-test:
     jobs:
-      - setup
-      - setup-firebase:
-          requires:
-            - setup
-      - test-firestore-real:
-          requires:
-            - setup-firebase
-      - test-firestore-emulator:
-          requires:
-            - setup
-      - test-unittest:
-          requires:
-            - setup
+      - test-firestore-emulator
