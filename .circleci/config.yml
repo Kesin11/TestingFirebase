@@ -1,17 +1,4 @@
 version: 2.1
-orbs:
-  firebase:
-    commands:
-      decode_secrets:
-        steps:
-          # 以下の2つのjsonはあらかじめFirebaseのWebUIから取得し、base64エンコードしたものを以下の変数名でCircleCIに登録しておくこと
-          # FIEBASE_CONFIG=`base64 firebase_config_test.json`
-          # FIEBASE_SERVICE_ACCOUNT=`base64 service_account_test.json`
-          - run:
-              name: Decode firebase_config.json and service_account.json
-              command: |
-                echo $FIREBASE_CONFIG | base64 --decode > firebase_config.json;
-                echo $FIREBASE_SERVICE_ACCOUNT | base64 --decode > service_account.json
 
 jobs:
   test-firestore-emulator:
