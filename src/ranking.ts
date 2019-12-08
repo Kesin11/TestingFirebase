@@ -6,7 +6,7 @@ export class RankingAdminModel {
   constructor(private firestore: admin_firestore.Firestore) {}
   collectionRef() { return this.firestore.collection(COLLECTION_PATH) }
   
-  async getAllByRank() {
+  async getAllOrderByRank() {
     return this.firestore.collection(COLLECTION_PATH).orderBy('rank', 'asc').get()
   }
 }

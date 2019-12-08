@@ -100,7 +100,7 @@ describe('cronRestaurantRanking', () => {
 
     // /rankings のdocをrank順に取得し、比較用に配列に詰め直す
     const rankings: typeof expectRankings = []
-    const snapshot = await rankingModel.getAllByRank()
+    const snapshot = await rankingModel.getAllOrderByRank()
     snapshot.forEach((doc) => {
       const data = doc.data()
       rankings.push({

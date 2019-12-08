@@ -43,23 +43,32 @@ type Ranking = {
   restaurantName: string,
 }
 export const cronRestaurantRanking = functions.pubsub.topic('cron-restaurant-ranking').onPublish(async (msg, ctx) => {
+  // ランキングの入れ替えは同時に行う必要があるのでbatchを使用
+  const batch = firestore.batch()
+
+  // 前日のランキングを削除
+  const lastDaySnapshot = await firestore.collection('/rankings').get()
+  lastDaySnapshot.forEach((doc) => {
+    batch.delete(doc.ref)
+  })
+  
+  // 当日のランキングを作成
   let rank = 1
-  const rankings: Ranking[] = []
   const snapshot = await firestore.collection('/restaurants').orderBy('rateAvg', 'desc').get()
   snapshot.forEach((doc) => {
     const data = doc.data()
-    rankings.push({
+    const ranking: Ranking = {
       rank: rank,
       rateAvg: data.rateAvg,
       restaurantId: doc.id,
       restaurantName: data.name,
-    })
+    }
+    batch.set(firestore.collection('rankings').doc(), ranking)
     rank += 1
   })
 
-  for (const ranking of rankings) {
-    await firestore.collection('/rankings').add(ranking)
-  }
+  // deleteとaddを同時に実行
+  await batch.commit()
 })
 
 // エミュレータではschedule用のtopicが認識されないらしく、発火はできない
