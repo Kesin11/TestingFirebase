@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  test-firestore-emulator:
+  test-with-emulators:
     docker:
       - image: circleci/openjdk:latest-node
     working_directory: ~/project
@@ -23,4 +23,4 @@ workflows:
   version: 2
   firebase-test:
     jobs:
-      - test-firestore-emulator
+      - test-with-emulators
