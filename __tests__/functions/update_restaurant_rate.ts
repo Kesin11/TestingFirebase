@@ -69,7 +69,7 @@ describe('reviews', () => {
       }
     })
 
-    test('functions calculate rate avg', (done) => {
+    test('functions calculate rate avg', async () => {
       const rates = [3, 5]
       reviewModel.set(restaurantId, {
         rate: rates[0],
@@ -84,15 +84,17 @@ describe('reviews', () => {
 
       const expectRateAvg = (rates[0] + rates[1]) / rates.length
       const expectRateNum = rates.length
-      unsubscribe = restaurantModel.collectionRef().doc(restaurantId).onSnapshot((snap) => {
-        const data = snap.data()!
-        // functionsが正しく動作すればrateNumが2, rateAvgが4になるはず
-        // functionsは2回実行されるはずなので、そのうち1回でも望んだ結果が来ればOK
-        if (data.rateNum === expectRateNum) {
-          expect(data.rateAvg).toEqual(expectRateAvg)
-          done()
-        }
-      })
+      await new Promise((resolve => {
+        unsubscribe = restaurantModel.collectionRef().doc(restaurantId).onSnapshot((snap) => {
+          const data = snap.data()!
+          // functionsが正しく動作すればrateNumが2, rateAvgが4になるはず
+          // functionsは2回実行されるはずなので、そのうち1回でも望んだ結果が来ればOK
+          if (data.rateNum === expectRateNum) {
+            expect(data.rateAvg).toEqual(expectRateAvg)
+            resolve()
+          }
+        })
+      }))
     })
   })
 })
