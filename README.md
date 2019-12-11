@@ -1,56 +1,101 @@
 # TestingFirebase
 [![CircleCI](https://circleci.com/gh/Kesin11/TestingFirebase/tree/master.svg?style=svg)](https://circleci.com/gh/Kesin11/TestingFirebase/tree/master)
 
-Firebaseのプロジェクトを本格的にテストするサンプル
+FirebaseプロジェクトをEmulator Suite(Firestore, Cloud Functions, PubSub)によるエミュレータを使ってテストするサンプルリポジトリ
 
 # USAGE
 ```sh
-# login
-firebase login --no-localhost
-
-# start emulator
+# 別ウィンドウでエミュレータを立ち上げておく
 npm run emulators:start
-
-# test
+# テスト実行
 npm run test
 
-# or using emulators:exec
-npm run emulators:test
+# もしくはエミュレータの起動・終了とテストをセットで実行できる
+npm run test:ci
 ```
 
-# プロジェクト構成
-開発用のdev、テスト用のtestのFirebaseプロジェクトが別々に分かれている想定。　　
+TDDで開発する場合は、jest --watchの状態でテストを裏で実行しておくのが便利。
+
+```sh
+# 別ウィンドウでエミュレータを立ち上げておく
+npm run emulators:start
+# さらに別ウィンドウでfunctions/index.tsのためにtsc --watchを立ち上げる
+npm --prefix functions run build:watch
+# jest --watch相当
+npm run test:watch
+```
+
+
+# Firebaseプロジェクトの構成
+開発用のdev、テスト用のtestとFirebaseプロジェクトが別々に分かれている想定。  
 開発はdevで行い、CIでのテストをtestで行う。
 
-プロジェクトの切り替えは`firebase use dev`, `firebase use test`で行う。  
-ただ、ダミーデータを用意するためのscripts/の各種スクリプトは`service_account.json`, `firebase_config.json`で接続先が切り替わる。
+プロジェクトの切り替えは `firebase use dev` と `firebase use test`
 
-.gitignoreに追加してあるため、ローカル環境にはdevプロジェクトのものをダウンロードして配置、CI環境ではbase64エンコードしたtestプロジェクトのものを復元して使用する。
+# テスト
+## Firestore
+[\_\_tests\_\_/firestore](./__tests__/firestore)
 
-# CI用のtestプロジェクトの制約と事前準備
-本当はCIでテストする毎にAPIで新しいFirebaseプロジェクトを作成、破棄することで独立した環境を用意できたらベストだったが、以下の理由で不可能だった。
+```sh
+npm run test:firestore
+```
 
-- Firestoreを有効化してFirebaseプロジェクトに紐付けるためには、FirebaseのWebUIからFirestoreを有効化する必要がある。（APIが存在しなかった）
-- FirebaseのAuthでメールアドレス認証を有効化するには、FirebaseのWebUIから有効化する必要がある。（APIが存在しなかった）
+Firestoreエミュレータを単独で使用するテスト。  
+主にSecurity Rule（firestore.rules)のテストです。
 
-現状では手動操作がどうしても必要なため、testプロジェクトは1つだけ用意して手動で上記のセットアップを事前にしておく。　　
-そのため、CI環境で並列でテストを走らせるとコンフリクトしてしまうので、現状では同時にテストが走らないように制御する必要がある。
 
-# Auth
-ユーザーが既にサービスにいる状態を再現するため、devプロジェクトで`firebase auth:export`でユーザーデータを書き出しておく。
-テスト時はtestプロジェクトで`firebase auth:import`することでユーザーデータを読み込む。
+## Cloud Functions 
+[\_\_tests\_\_/functions](./__tests__/functions)
 
-書き出されたユーザーデータのパスワードはハッシュ化されているため、テストスクリプトで既存ユーザーのログインに使用するための生パスワードは別途どこかで保存しておく必要がある。  
-現在はsrc/test_utils.tsの中にべた書きでテスト用ユーザーのemailとpasswordを保存している。
+```sh
+npm run test:functions
+```
 
-# Firestoreエミュレータ
+Cloud Functions + Firestore, PubSub の複数のエミュレータを協調させたテスト。  
+Firestoreトリガー、PubSubトリガーでFunctionsが実行されたあとの状態をテストする。
 
-# Firestore
-## 既存ユーザーのためのデータ
-Authの項目で説明した既存ユーザーはuserIdが固定されているため、そのユーザーに対応するデータをテスト前にFirestoreに用意することが可能である。
-理想は[インポート機能](https://firebase.google.com/docs/firestore/manage-data/export-import)を使用してGCSからデータをロードすることだが、Firebaseの課金プランを有効化する必要があるため今回は見送っている。
-
-代わりにscripts/insert_dummmy_data.tsにて既存ユーザーのuserIdに対応したデータを用意している。
-
-# CIパイプライン
+# CI
 [CircleCIの設定](./.circleci/config.yml)参照
+
+# サンプルとしての題材
+このリポジトリの本題はテストコードですが、テストするための題材である実装側の説明です。
+
+## 要件
+架空のレストランのレビューサイト
+
+- レストランの情報は運営（admin）だけが編集可能
+- ユーザーはレストランにレビュー文と、1-5の評価を付けることができる
+- レストランには過去のレビュー評価の平均点が表示される
+- 平均点によるランキング機能がある
+- ランキングは1日1回更新
+
+## Firestore設計
+- /restaurants/{restaurantId}
+    - （レストラン情報はユーザーからはread only）
+    - rateAvg: number（レビュー平均点数）
+    - rateNum: number（レビュー数）
+    - name: string（レストラン名）
+- /reviews/{userId}
+    - （ログイン済みユーザーのみread/write可能、店舗ごとに一人のユーザーがレビュー投稿できるのは1回のみ）
+    - rate: number（レビュー点数）
+    - text: string（レビュー本文）
+    - timestamp: timestamp（投稿時間）
+    - userId: string（ユーザーid）
+- /rankings/{id}
+    - （ランキングはユーザーからはread only）
+    - rank: number（順位）
+    - rateAvg: number（レビュー平均点数）
+    - restaurantId: string（レストランid）
+    - restaurantName: string（レストラン名）
+
+### Functions設計
+
+以下の要件は、ユーザーからのwriteで自由に書き換えられてしまうとダメなのでSecurity Ruleでガードしつつ、Cloud FunctionsからAdmin SDKを使ってFirestoreを更新します。
+
+- レストランには過去のレビュー評価の平均点が表示される
+    - ユーザーがレビューを投稿したときのFirestoreトリガーで平均点を計算し直す
+- ランキングは1日1回更新
+    - Cloud SchedulerからPubSubを発火させ、PubSubトリガーでランキングを再集計する
+
+# LICENSE
+MIT
